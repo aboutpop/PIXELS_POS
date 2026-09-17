@@ -76,13 +76,32 @@
 
 ---
 
-### 📌 กฎข้อที่ 4: กฎการแก้ปัญหาผังแป้นพิมพ์ไทยอัตโนมัติ (Thai Barcode Auto-Correction)
-> **Mandate:** ปืนยิงบาร์โค้ดฮาร์ดแวร์ทำงานเสมือนการพิมพ์แป้นพิมพ์ความเร็วสูง (Keyboard Wedge) หากผู้ใช้เปิดแป้นพิมพ์ค้างเป็นภาษาไทย ตัวเลขและตัวอักษรจะเพี้ยนกลายเป็นอักษรไทยทันที (เช่น `8850123...` กลายเป็น `๘๘๕๐...` หรือ `ภถุึคตจขชๆพะ`)
-- **ข้อบังคับ:** ทุกจุดที่รับ Input บาร์โค้ด (ทั้งใน `pos.js`, `products.js`, `stock-in.js`) ต้องผ่านฟังก์ชัน:
-  ```javascript
-  import { normalizeThaiBarcode } from '../utils/barcodeHelper.js';
-  const cleanBarcode = normalizeThaiBarcode(rawInput);
-  ```
+### 📌 กฎข้อที่ 4: กฎระบบดักจับบาร์โค้ดฮาร์ดแวร์และแก้ปัญหาผังแป้นพิมพ์ไทย (Hardware Barcode Engine & Thai Auto-Correction)
+> **Mandate:** ปืนยิงบาร์โค้ดฮาร์ดแวร์ทำงานเสมือนการพิมพ์แป้นพิมพ์ความเร็วสูง (Keyboard Wedge) ระบบต้องดักจับข้อมูลอย่างแม่นยำ ป้องกันปัญหาภาษาไทย ป้องกันอาการกระตุกของบลูทูธ (Bluetooth Jitter) และตัดการพิมพ์ด้วยมือของมนุษย์:
+1. **In-Memory Capture ผ่าน Physical Keys (`e.code`):**
+   - ดักจับเหตุการณ์ที่ Capture Phase (`window.addEventListener('keydown', ..., true)`)
+   - สกัดตัวเลขจาก `e.code.startsWith('Digit')` และ `e.code.startsWith('Numpad')` หรือใช้ `getCharFromPhysicalEvent(e)` เพื่อไม่ให้อิงกับภาษาแป้นพิมพ์ของระบบปฏิบัติการ
+   - เมื่อโฟกัสอยู่ที่ช่องบาร์โค้ด (`#pos-barcode-input`) ให้สั่ง `e.preventDefault()` ป้องกัน DOM Repaint Lag และซิงก์ค่าตรงสู่ `.value` เพื่อไม่ให้อักษรไทยหลุดเข้าไปใน DOM
+2. **ระบบความเร็วปรับตัวได้ (Adaptive Cadence Dual-Threshold):**
+   - หัวอ่านบาร์โค้ดบลูทูธไร้สายเมื่อหลับ (Standby/Sleep) แล้วตื่นขึ้นมายิง 1–3 ตัวแรก จะเกิด Latency Spike จากการ Reconnect Handshake (อาจหน่วง 80–150ms)
+   - **ข้อบังคับ:** ใช้ Dual-Threshold แทนค่าคงที่เดี่ยว:
+     ```javascript
+     const CADENCE_FAST = 55;      // ความเร็วปกติของหัวอ่านฮาร์ดแวร์ (< 55ms)
+     const CADENCE_WAKEUP = 180;   // Grace Period สำหรับ 1-3 ตัวแรกช่วงตื่น (< 180ms)
+     const allowedCadence = (barcodeBuffer.length <= 3) ? CADENCE_WAKEUP : CADENCE_FAST;
+     if (timeDiff > allowedCadence) barcodeBuffer = '';
+     ```
+   - ป้องกันอาการเลขตัวหน้านำหลุดหาย (Dropped Leading Digits) ได้ 100% พร้อมตัดการพิมพ์มือของมนุษย์ (> 200ms) ทิ้งอย่างเด็ดขาด
+3. **การประมวลผลเมื่อกด Enter และการรับมือสแกนผิดพลาด:**
+   - เมื่อพบ `Enter` และความยาว Buffer $\ge 3$ ตัวอักษร ให้สั่ง `preventDefault()`, `stopPropagation()` และส่งเข้า `handleBarcodeScan(scannedCode)` ทันที
+   - หากไม่พบสินค้า ให้เปิด `barcode-not-found-modal` ซึ่งมีป้ายตรวจจับความยาวบาร์โค้ด ($< 8$ หลัก) แจ้งเตือนกรณีสัญญาณหลุดสแกนไม่ครบ
+   - ปุ่ม **`❌ สแกนผิดพลาด / ยกเลิก [N]`** ให้ระบบเข้าใจว่าเป็นการสแกนที่ผิดพลาด ล้าง buffer ในระบบ และคืนโฟกัสกลับไปที่ `#pos-barcode-input` ทันทีตามกฎข้อที่ 1
+4. **Fallback Thai Normalization:**
+   - ทุกจุดที่รับ Input บาร์โค้ดแบบ Manual หรือ Paste ต้องผ่านฟังก์ชัน:
+     ```javascript
+     import { normalizeThaiBarcode } from '../utils/barcodeHelper.js';
+     const cleanBarcode = normalizeThaiBarcode(rawInput);
+     ```
 
 ---
 
@@ -109,7 +128,7 @@
 - **พื้นที่แสดงผลจริง (Usable Viewport):** เมื่อหักลบแถบสถานะของ Android (~28px), แถบ Gesture Bar ด้านล่าง (~18px) และ Header ของระบบ (~44px) จะเหลือพื้นที่แนวตั้งในการทำงานประมาณ **540px**
 - **ข้อบังคับ Zero-Scroll (Zero-Scroll Mandate):**
   1. หน้าสรุปบิลและชำระเงิน (`views/payment.html`) ต้องแสดงผลครบถ้วนในหน้าจอเดียว **ห้ามมี Outer Scrollbar**
-  2. ปุ่ม **"ยืนยันรับเงินสด & ตัดสต็อก [Enter]"** จะต้องปรากฏอยู่บนจอเสมอ 100% โดยที่แคชเชียร์ไม่ต้องเลื่อนจอลงไปกด
+  2. ปุ่ม **"รับเงินสดพอดี & ตัดสต็อก [Enter]"** จะต้องปรากฏอยู่บนจอเสมอ 100% โดยที่แคชเชียร์ไม่ต้องเลื่อนจอลงไปกด (รองรับ 1-Click Instant Checkout เมื่อแตะปุ่ม `⚡ พอดี (ปิดบิล)` หรือกด `[Enter]` ทันทีหากได้รับเงินสดพอดี ไม่ต้องเสียเวลากรอกตัวเลข)
   3. อนุญาตให้เกิด Scrollbar เฉพาะภายในกล่องรายการสินค้า (`#modal-receipt-items`) เท่านั้นเมื่อมีสินค้าจำนวนมากเกินความสูง
   4. หน้าต่างย่อย แถบข้อมูลสรุปบิล และ Numpad ต้องถูกออกแบบให้มีขนาดกะทัดรัด (Compact) เพื่อไม่ให้ดันส่วนอื่นๆ ล้นจอ
 
@@ -325,6 +344,21 @@
 
 ---
 
+### 4.8 ตรรกะระบบสแกนบาร์โค้ดฮาร์ดแวร์และการจัดการ Bluetooth Latency Jitter (Adaptive Cadence Scanner Engine)
+- **สถาปัตยกรรม In-Memory Buffer:**
+  - สแกนเนอร์บาร์โค้ดยิงข้อมูลเข้ามาเป็น Keystrokes ถี่ๆ ป้องกันการเด้งของ Virtual Keyboard ด้วยการใช้ `inputmode="none"` บน `#pos-barcode-input`
+  - ตรวจจับผ่าน Capture Phase Keydown ก่อนที่ Event จะถึง DOM Elements ป้องกันไม่ให้เบราว์เซอร์กระตุกจากการ Render ทีละตัวอักษร
+- **การจัดการความหน่วง Bluetooth Standby (Reconnection Jitter):**
+  - เมื่อสแกนเนอร์พักการใช้งานเกิน 2-3 นาที บลูทูธจะเข้าโหมดประหยัดพลังงาน
+  - เมื่อสแกนบาร์โค้ด EAN-13 ครั้งแรกหลังตื่น ตัวเลขตัวที่ 1 ถึง 3 จะถูกส่งด้วยระยะห่าง 80-140ms (หากใช้ Threshold คงที่ 50-60ms จะทำให้ Buffer ถูกล้างทิ้งกลางคันและตัวเลขนำหน้าตกหล่น)
+  - ระบบจึงใช้ **Adaptive Cadence (Dual-Threshold)**: ให้ Grace Period 180ms ในช่วง 1-3 ตัวแรก และปรับเป็น 55ms เมื่อผ่านตัวที่ 3 เป็นต้นไป
+- **การจัดการกรณีสแกนผิดพลาด (Erroneous / Incomplete Scan Handling):**
+  - หากสแกนโดนบาร์โค้ดผิด หรือข้อมูลมาไม่ครบถ้วน โมดัล `#barcode-not-found-modal` จะแสดงข้อมูลความยาวหลักพร้อมคำแนะนำแจ้งเตือนสัญญาณหลุด
+  - แคชเชียร์สามารถกด `❌ สแกนผิดพลาด / ยกเลิก [N]` หรือปุ่ม `[Esc]`
+  - ระบบจะ Dismiss คำขอนี้ ล้าง Buffer และตัวอักษรตกค้าง พร้อมคืนโฟกัสที่ช่องสแกนเพื่อให้ยิงซ้ำได้ทันทีตามกฎข้อที่ 1
+
+---
+
 ## 5. ข้อควรระวังและกับดักที่พบบ่อย (Critical Gotchas & Pitfalls Table)
 
 | หัวข้อ (Issue) | สาเหตุที่อาจทำให้ระบบพัง (Root Cause) | วิธีป้องกันและแก้ไขที่ต้องปฏิบัติ (Strict Prevention) |
@@ -342,7 +376,9 @@
 | **Tablet Viewport Height Overflow** | การใส่ padding หรือความสูงองค์ประกอบคงที่มากเกินไป ทำให้ปุ่มยืนยันหลุดขอบจอ 640px | ปฏิบัติตาม **กฎข้อที่ 7**: ใช้โครงสร้าง Zero-Scroll Layout และควบคุมความสูงให้ไม่เกิน 540px |
 | **Virtual Keyboard Obscuring Layout** | การแตะช่อง Input บนแท็บเล็ตทำให้คีย์บอร์ดของ Android เด้งขึ้นมาบดบังหน้าจอ | ใส่ `inputmode="none"` บนช่องรับเงินสดและส่วนลด เพื่อบังคับใช้ Numpad ของแอป |
 | **PromptPay Checksum Failure** | คำนวณ CRC16 ผิดสูตรทำให้แอปธนาคารสแกนจ่ายเงินไม่ผ่าน | ใช้ CRC16-CCITT (0xFFFF) 4 หลักพิมพ์ใหญ่ ตามมาตรฐาน EMVCo QR เสมอ |
-| **Hardware Scanner Keystroke Flood** | ปืนสแกนยิงตัวอักษรเข้ามาเร็วมาก หากดักจับ `input` event ทีละตัวจะทำให้หน้าเว็บกระตุก | ใช้การดักจับปุ่ม `Enter` หรือหน่วงเวลา Debounce 30-50ms เพื่อรับรหัสบาร์โค้ดแบบก้อนเดียวจบ |
+| **Hardware Scanner Keystroke Flood** | ปืนสแกนยิงตัวอักษรเข้ามาเร็วมาก หากดักจับ `input` event ทีละตัวจะทำให้หน้าเว็บกระตุก | ดักจับ Capture-Phase `keydown` ลง In-Memory Buffer พร้อมใส่ `e.preventDefault()` ป้องกัน DOM Repaint Lag |
+| **Bluetooth Standby Reconnection Jitter** | หัวอ่านไร้สายหลับ (Standby) พอตื่นมายิง 1-3 ตัวแรกเกิด Latency Spike (> 60ms) ทำให้อักษรนำหน้าหาย | ใช้ **Adaptive Cadence (Dual-Threshold)**: ให้ Grace Period 180ms ช่วง 1-3 ตัวแรก และ 55ms สำหรับตัวถัดไป |
+| **Erroneous / Partial Barcode Scan** | สแกนเนอร์อ่านบาร์โค้ดหลุด (ส่งมาไม่ครบ 8-13 หลัก) หรือสแกนโดนรหัสผิด | โมดัล `barcode-not-found-modal` แสดงแถบเตือนบาร์โค้ดสั้นผิดปกติ พร้อมปุ่ม `❌ สแกนผิดพลาด / ยกเลิก [N]` เพื่อล้าง Buffer และคืนโฟกัสทันที |
 | **Navigation Race Condition** | ผู้ใช้กดเปลี่ยนหน้าขณะที่ระบบกำลัง fetch ข้อมูลแคตตาล็อกเริ่มต้น | ล็อกแถบเมนูด้วย `nav-loading-locked` และตัวแปร `window.setAppLoading()` จนกว่าจะโหลดเสร็จ |
 
 ---
