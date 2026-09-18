@@ -29,7 +29,7 @@
 
 Pixel POS & AI Inventory ได้รับการออกแบบภายใต้แนวคิด **"Retro Arcade Aesthetics with Modern Cloud Resilience"**:
 - **Retro Arcade 8-Bit/16-Bit Interface**: ดีไซน์ย้อนยุคสไตล์ตู้เกมอาร์เคด โทนสีเหลืองอำพัน-ดำตัดขอบคมชัด หน้าจอ LED แบบมีเส้นสแกนไลฟ์สไตล์ CRT พร้อมระบบเสียงสังเคราะห์ Chiptune SFX ในตัวผ่าน Web Audio API โดยไม่ต้องพึ่งพาไฟล์เสียงภายนอก พร้อมปุ่มเปิด/ปิดเสียง (Sound Mute) ที่จำสถานะข้ามเซสชัน
-- **Single Page Application (SPA) with Dynamic View Loader**: โครงสร้างไฟล์ HTML แยกย่อยตามหน้าในโฟลเดอร์ `views/*.html` ถูกโหลดแบบอะซิงโครนัสเข้าสู่คอนเทนเนอร์หลักใน `index.html` พร้อมระบบแคช View ในตัว และมี Navigation Guard ล็อกการเปลี่ยนหน้าขณะระบบกำลังดาวน์โหลดข้อมูลสินค้าเริ่มต้น
+- **Single Page Application (SPA) with In-Memory View Cache & Module Lifecycle**: โครงสร้างไฟล์ HTML แยกย่อยตามหน้าในโฟลเดอร์ `views/*.html` ถูกโหลดแบบอะซิงโครนัสเข้าสู่คอนเทนเนอร์หลัก `#app-viewport` ใน `index.html` พร้อมระบบ **In-Memory View Cache (Map)** สลับหน้าได้เร็วระดับ sub-millisecond โดย **ไม่เปลืองโควตา 5MB ของ `localStorage`** (ตัดปัญหา QuotaExceededError 100%), มีระบบ **Service Worker (Cache-First)** พร้อม `{ ignoreSearch: true }` สำหรับการทำงานออฟไลน์, ระบบ **Module Lifecycle (`init()` / `destroy()`)** กำจัดปัญหา Memory Leak จาก Event Listeners สะสมบนแท็บเล็ตแคชเชียร์, และมี Navigation Guard ล็อกการเปลี่ยนหน้าขณะระบบกำลังดาวน์โหลดข้อมูลสินค้าเริ่มต้น
 - **Offline-First & Dual-Client Fallback**: ทำงานต่อเนื่องได้แม้สัญญาณอินเทอร์เน็ตขาดหายด้วย IndexedDB (`Dexie.js`) และ Service Worker (PWA) เมื่อส่งคำสั่งฐานข้อมูล ระบบมีตัวช่วย `dbHelper.js` ที่สลับการทำงานระหว่าง Authenticated Client และ Anon Public Client ของ Supabase โดยอัตโนมัติเมื่อเกิดปัญหา Session หลุดหรือติดสิทธิ์ RLS
 - **AI-Powered Inventory Staging**: ใช้วิสัยทัศน์คอมพิวเตอร์ผ่าน Google Gemini Flash API ถอดข้อมูลจากบิล/ใบเสร็จรับเงินค้าส่ง แปลงเป็นข้อมูลที่มีโครงสร้าง (Structured JSON) เข้าสู่ Staging Table ซึ่งรองรับทั้ง **มุมมองการ์ด (Cards View)** สำหรับแท็บเล็ตจอสัมผัส และ **มุมมองตาราง (Table View)** สำหรับคอมพิวเตอร์จอกว้าง
 - **Touch & Tablet Ergonomics**: ปรับขนาดปุ่มกดสำหรับนิ้วมือ (Touch Targets อย่างน้อย 44×44px), แป้นพิมพ์ตัวเลขเสมือนจริงบนหน้าจอ (On-Screen Pixel Numpad) สำหรับระบุจำนวนสินค้าและรับเงินสด, ป้องกันการคลุมข้อความโดยไม่ตั้งใจบนอุปกรณ์สัมผัส, และปรับระยะบรรทัดภาษาไทยให้สระและวรรณยุกต์ไม่แหว่ง
@@ -41,7 +41,7 @@ Pixel POS & AI Inventory ได้รับการออกแบบภาย�
 | ส่วนประกอบ (Component) | เทคโนโลยี / ภาษาที่ใช้ | คำอธิบายและบทบาทหน้าที่ |
 | :--- | :--- | :--- |
 | **Core Frontend Language** | **JavaScript (Native ES6+ Modules)** | ใช้ Native ES Modules (`import`/`export`) เต็มระบบ ไม่ต้องพึ่งพา Bundler (Vite/Webpack) ทำให้ดีบักง่าย โค้ดโปร่งใส และโหลดไว |
-| **Structure & Templating** | **HTML5 Semantic Partial Views** | หน้าจอถูกแยกเป็นโมดูลาร์ในไดเรกทอรี `views/*.html` เพื่อให้ `viewLoader.js` โหลดเฉพาะส่วนที่ต้องการ |
+| **Structure & Templating** | **HTML5 Semantic Partial Views** | หน้าจอถูกแยกเป็นโมดูลาร์ในไดเรกทอรี `views/*.html` เพื่อให้ `viewLoader.js` โหลดเฉพาะส่วนที่ต้องการ จัดเก็บใน In-Memory Cache (Map) โดยไม่กินพื้นที่ `localStorage` และมี Versioning ควบคุมผ่าน `APP_VERSION` |
 | **Styling & Retro Theme** | **Tailwind CSS v3.4 + Custom Pixel CSS** | ยูทิลิตี้คลาสของ Tailwind CSS ผสานกับสไตล์ตู้เกมพิกเซลและ Scanlines ใน `css/retro-pixel.css` |
 | **Local Web Server** | **Node.js (Native HTTP Server)** | เซิร์ฟเวอร์ `server.js` ขนาดกะทัดรัด ให้บริการไฟล์สถิต มีระบบกันชนกรณี Port ซ้ำ (`EADDRINUSE`) และรองรับ SPA Fallback |
 | **Primary Cloud Database** | **Supabase (PostgreSQL 15+)** | เก็บข้อมูลหลัก: สินค้า, หมวดหมู่, ประวัติการขาย, รายการขาย, ความเคลื่อนไหวสต็อก และการตั้งค่าร้านค้า |
@@ -49,7 +49,7 @@ Pixel POS & AI Inventory ได้รับการออกแบบภาย�
 | **Vision AI Engine** | **Google Gemini Flash API** | ถอดข้อความใบเสร็จรับเงิน/ใบส่งสินค้า รองรับ Failover Pool (`gemini-2.5-flash`, `gemini-2.0-flash`, `gemini-1.5-flash`) |
 | **Camera Barcode & QR Reader** | **Html5-Qrcode SDK** | สแกนบาร์โค้ด 1D (EAN-13, Code 128) และ 2D (QR Code) ผ่านกล้องแท็บเล็ต/สมาร์ทโฟน |
 | **Data Analytics & Charts** | **Chart.js v4.4** | กราฟเส้นแนวโน้มยอดขายและกำไร, กราฟแท่งสินค้าขายดี 10 อันดับแรก, และโดนัทสัดส่วนการชำระเงิน |
-| **Progressive Web App (PWA)** | **Service Worker (`sw.js`) + Manifest** | รองรับการติดตั้งแบบ Standalone Application บน iOS, iPadOS, Android, Windows, macOS พร้อมไอคอน Maskable |
+| **Progressive Web App (PWA)** | **Service Worker (`sw.js`) + Manifest** | รองรับการติดตั้งแบบ Standalone Application บน iOS, iPadOS, Android, Windows, macOS พร้อมไอคอน Maskable และการแคชแบบ Cache-First ที่รองรับ `{ ignoreSearch: true }` |
 | **Image Storage Pipeline** | **Google Apps Script (GAS) + Google Drive** | Middleware รับภาพ Base64 นำไปบันทึกลง Google Drive แล้วแปลงเป็น High-Speed Direct Google CDN Link |
 | **PromptPay Payment QR** | **Native JavaScript EMVCo QR Generator** | สร้าง Dynamic PromptPay QR Code ตามมาตรฐาน EMVCo พร้อมคำนวณ Checksum CRC16-CCITT อัตโนมัติ |
 | **Receipt Printing** | **Thermal Print Engine (ESC/POS CSS)** | จัดรูปแบบสลิปใบเสร็จมาตรฐานกระดาษความร้อน 58 มม. และ 80 มม. พิมพ์ผ่านเบราว์เซอร์หรือเครื่องพิมพ์บลูทูธ/USB |
@@ -66,6 +66,8 @@ Pixel POS & AI Inventory ได้รับการออกแบบภาย�
 │   index.html (Core Shell)                                                                         │
 │   ├── Header: Sound Toggle, Offline/Online Status Badge, Sync Indicator, Navigation Bar          │
 │   ├── ViewContainer (#app-viewport): Dynamic Injection via js/core/viewLoader.js                 │
+│   │   ├── In-Memory View Cache (Map): Sub-millisecond swap, 0% localStorage storage pressure     │
+│   │   ├── Module Lifecycle Manager (setActiveModule): Auto .destroy() teardown on view swap      │
 │   │   ├── views/pos.html           (POS Terminal & Cart)                                          │
 │   │   ├── views/payment.html       (Checkout & On-Screen Numpad)                                  │
 │   │   ├── views/products.html      (Product Catalog & Stock Management)                           │
@@ -75,7 +77,7 @@ Pixel POS & AI Inventory ได้รับการออกแบบภาย�
 │   │   ├── views/dashboard.html     (Reports & Chart.js Analytics)                                 │
 │   │   ├── views/settings.html      (Store Config, VAT, Printers, API Keys)                        │
 │   │   └── views/modals.html        (14 Universal Modals Registry)                                 │
-│   └── Event Bus (appBus in dbHelper.js) ──► Cross-module instant updates                          │
+│   └── Event Bus (appBus in dbHelper.js) ──► Scoped Disposable unsubscriptions                     │
 └────────────────────────────────────────┬──────────────────────────────────┬───────────────────────┘
                                          │                                  │
                   Local Caching & Queue  │                                  │ Cloud REST API / SDK
@@ -114,25 +116,25 @@ about_pos/
 ├── google-apps-script/
 │   └── Code.gs                 # สคริปต์ Google Apps Script Web App สำหรับรับอัปโหลดภาพไปบันทึกบน Google Drive
 ├── js/
-│   ├── config.js               # การตั้งค่า Supabase URL และ Public Anon Key
+│   ├── config.js               # การตั้งค่า Supabase และ Single Source of Truth สำหรับเลขเวอร์ชัน (APP_VERSION)
 │   ├── db.js                   # จัดการฐานข้อมูล IndexedDB ฝั่งเบราว์เซอร์ผ่าน Dexie.js (RetroArcadePosDB)
 │   ├── pwa-install.js          # ตรวจจับ event beforeinstallprompt และควบคุมปุ่มติดตั้ง PWA
 │   ├── sync.js                 # ซิงค์ข้อมูลอัตโนมัติ (ตรวจจับเน็ตหลุด/ต่อเน็ต และส่งคิวบิลออฟไลน์ขึ้น Supabase)
 │   ├── core/
-│   │   └── viewLoader.js       # จัดการโหลดไฟล์ HTML ใน views/ แบบ Asynchronous พร้อมแคชและ Versioning
+│   │   └── viewLoader.js       # โหลด views/*.html แบบ Asynchronous, In-Memory Cache (Map), จัดการ Lifecycle (setActiveModule), ล้างแคชเก่า (purgeLegacyViewCache) และ Versioning
 │   ├── modules/
-│   │   ├── categories.js       # โมดูลจัดการหมวดหมู่สินค้า (เพิ่ม, แก้ไข, ลบ, จัดลำดับ sort_order)
-│   │   ├── orders.js           # โมดูลประวัติการขาย (ค้นหาบิล, กรองวันที่, พิมพ์สลิปซ้ำ, ยกเลิกบิลและคืนสต็อก)
-│   │   ├── pos.js              # โมดูลขายหน้าร้าน (จัดการตะกร้า, สแกนบาร์โค้ด, พักบิล/เรียกบิล, LED Qty Numpad)
-│   │   ├── products.js         # โมดูลคลังสินค้า (แคตตาล็อก, เพิ่ม/แก้ไขสินค้า, ปรับสต็อก, นำเข้า/ส่งออก CSV)
-│   │   ├── reports.js          # โมดูลรายงานและสถิติ (KPIs ยอดขาย, กำไร, กราฟ Chart.js 4 รูปแบบ)
-│   │   ├── settings.js         # โมดูลตั้งค่าร้านค้า (ภาษี VAT, ข้อมูลร้าน, เครื่องพิมพ์, Gemini Key, GAS URL)
-│   │   └── stock-in.js         # โมดูลรับเข้าสต็อก AI (Gemini Vision, Staging Cards/Table, Stepper, ตรวจสอบทุน)
+│   │   ├── categories.js       # โมดูลจัดการหมวดหมู่สินค้า (Lifecycle: init / destroy, จัดลำดับ sort_order)
+│   │   ├── orders.js           # โมดูลประวัติการขาย (Lifecycle: init / destroy, กรองวันที่, พิมพ์ซ้ำ, ยกเลิกบิล)
+│   │   ├── pos.js              # โมดูลขายหน้าร้าน (Lifecycle: init / destroy, ตะกร้าสินค้า, สแกนบาร์โค้ด, พักบิล, LED Qty Numpad)
+│   │   ├── products.js         # โมดูลคลังสินค้า (Lifecycle: init / destroy, แคตตาล็อก, เพิ่ม/แก้ไขสินค้า, CSV)
+│   │   ├── reports.js          # โมดูลรายงานและสถิติ (Lifecycle: init / destroy, KPIs ยอดขาย, กำไร, Chart.js 4 รูปแบบ)
+│   │   ├── settings.js         # โมดูลตั้งค่าร้านค้า (Lifecycle: init / destroy, ภาษี VAT, เครื่องพิมพ์, Gemini Key, GAS URL)
+│   │   └── stock-in.js         # โมดูลรับเข้าสต็อก AI (Lifecycle: init / destroy, Gemini Vision, Staging Cards/Table, Stepper)
 │   └── utils/
 │       ├── audio.js            # ระบบสังเคราะห์เสียง Chiptune 8-bit (Web Audio API) พร้อมระบบเปิด/ปิดเสียง Mute
 │       ├── barcodeHelper.js    # แก้ไขปัญหาแป้นพิมพ์ภาษาไทย (Thai-English Layout Auto-Correction)
 │       ├── clipboard.js        # ฟังก์ชันคัดลอกข้อความลง Clipboard พร้อม Toast แจ้งเตือน
-│       ├── dbHelper.js         # Resilient DB Layer (สลับ Client, แก้ Schema Error) และ Event Bus (appBus)
+│       ├── dbHelper.js         # Resilient DB Layer (สลับ Client, แก้ Schema Error) และ Event Bus (appBus คืนฟังก์ชัน Unsubscribe)
 │       ├── gdrive.js           # ตัวแปลงลิงก์ Google Drive ID ไปเป็น Direct Google UserContent CDN URL
 │       ├── geminiApi.js        # เชื่อมต่อ Google Gemini Flash API พร้อม Failover Pool และ Timeout Protection
 │       ├── imageUploader.js    # บีบอัดรูปภาพหน้าจอ/ไฟล์, แปลงเป็น Base64 แล้วส่งไปยัง Google Apps Script
@@ -442,7 +444,13 @@ END $$;
 
 ## 8. เจาะลึกการทำงานของทุกโมดูล (Core Application Modules)
 
+> **มาตรฐานวงจรชีวิตโมดูล (Standardized Module Lifecycle):** ทุกโมดูลหน้าจอทั้ง 7 โมดูลได้รับการออกแบบตามสถาปัตยกรรมจัดการหน่วยความจำแบบเดียวกัน:
+> 1. `this.disposables = []`: สำหรับเก็บ Callback ฟังก์ชัน Unsubscribe จาก `appBus` และ DOM Event Listeners
+> 2. `async init()` หรือ `init()`: เมธอดเริ่มต้นสำหรับดึงข้อมูล ผูกเหตุการณ์ และสั่งเรนเดอร์ UI เมื่อสลับเข้ามายังหน้านั้น
+> 3. `destroy()`: เมธอดปลดเปลื้องทรัพยากร วนลูปสั่งทำงานทุก Callback ใน `this.disposables` และเคลียร์ค่า Pointer ใน DOM เพื่อป้องกัน Memory Leak 100% ควบคุมการทำงานอัตโนมัติผ่าน `setActiveModule()` ใน `viewLoader.js`
+
 ### 8.1 `js/modules/pos.js` (`PosModule`)
+- **Lifecycle Implementation**: รองรับ `async init()` (โหลดสินค้า/หมวดหมู่, ผูกคีย์ลัด Numpad, ดักฟัง `products:changed` และ `categories:changed`) และ `destroy()` (ถอดถอนคีย์บอร์ดลิสเนอร์และ Event Bus เมื่อสลับหน้า)
 - จัดการ State ของตะกร้าสินค้า (`this.cart`)
 - การคำนวณเงินสด: เมธอด `getTotals()` คืนค่า `subtotal`, `discount`, `netAmount`, `totalCost`, `profit`
 - เมธอด `updateQuantity(productId, delta)`: ปรับเพิ่ม/ลดจำนวนสินค้า
@@ -457,6 +465,7 @@ END $$;
   - เล่นเสียงสังเคราะห์ `stage_clear` และเปิด `pos-success-modal`
 
 ### 8.2 `js/modules/products.js` (`ProductsModule`)
+- **Lifecycle Implementation**: รองรับ `async init()` (ดึงสินค้า, อัปเดตสถิติ Inventory KPIs, เรนเดอร์ตาราง และดักฟัง `products:changed`) และ `destroy()` (เคลียร์ Disposables และ Table References)
 - โหลดแคตตาล็อกสินค้าจาก Supabase และซิงค์ลง Dexie IndexedDB
 - เรนเดอร์ตารางสินค้า รองรับการค้นหา Full-text (ชื่อ, บาร์โค้ด) และการกรองตามหมวดหมู่/สถานะ
 - จัดการฟอร์มบันทึกสินค้า (รองรับทั้งการสร้างใหม่และการแก้ไข) โดยมีระบบปิด Browser Autocomplete
@@ -465,11 +474,13 @@ END $$;
 - ฟังก์ชันปรับสต็อกสินค้าด่วน (`adjustStock()`) พร้อมบันทึกประวัติความเคลื่อนไหว
 
 ### 8.3 `js/modules/categories.js` (`CategoriesModule`)
+- **Lifecycle Implementation**: รองรับ `async init()` (โหลดหมวดหมู่, นับจำนวนสินค้า, ดักฟัง `categories:changed` และ `products:changed`) และ `destroy()` (ถอดถอน Disposables)
 - จัดการหมวดหมู่สินค้า (CRUD)
 - คำนวณจำนวนสินค้าที่สังกัดอยู่ในแต่ละหมวดหมู่แบบไดนามิก
 - เลื่อนลำดับการแสดงผลขึ้น/ลง (`moveOrder()`) และบันทึกฟิลด์ `sort_order` ใหม่ลงฐานข้อมูล
 
 ### 8.4 `js/modules/orders.js` (`OrdersModule`)
+- **Lifecycle Implementation**: รองรับ `async init()` (โหลดบิลประวัติการขาย, ผูกปุ่มตัวกรองช่วงเวลา, เรนเดอร์ตาราง) และ `destroy()` (ถอดถอน Disposables)
 - ดึงรายการประวัติการขาย พร้อมตัวกรองตามวันที่และประเภทการชำระเงิน
 - คำนวณยอดขายรวมและกำไรสุทธิรวมตามช่วงเวลาที่เลือก
 - แสดงรายละเอียดสลิปใบเสร็จ และสั่งพิมพ์ซ้ำผ่านเครื่องพิมพ์ความร้อน
@@ -480,6 +491,7 @@ END $$;
   4. อัปเดตแคชใน Dexie และกระจายสัญญาณผ่าน `appBus`
 
 ### 8.5 `js/modules/stock-in.js` (`StockInModule`)
+- **Lifecycle Implementation**: รองรับ `async init()` (โหลดแคตตาล็อกสินค้าสำหรับ Auto-match, ผูก Event คอนโทรล Staging) และ `destroy()` (เคลียร์ Disposables และ Staging Elements)
 - ประมวลผลภาพถ่ายใบเสร็จผ่าน `geminiApi.js` แล้วนำข้อมูลเข้าสู่ Staging
 - **รองรับ 2 มุมมอง (Dual View)**: `renderCards()` สำหรับแท็บเล็ตจอสัมผัส และ `renderTable()` สำหรับจอกว้าง
 - ฟังก์ชัน `addManualItem()`: เพิ่มรายการสินค้าเข้า Staging ด้วยตนเอง
@@ -489,11 +501,13 @@ END $$;
 - มีโมดัลยืนยัน (`modal-stockin-confirm`) และโมดัลแจ้งผลสำเร็จ (`modal-stockin-success`)
 
 ### 8.6 `js/modules/reports.js` (`ReportsModule`)
+- **Lifecycle Implementation**: รองรับ `async init()` (คำนวณ KPIs, สร้างอินสแตนซ์ Chart.js 4 รูปแบบ) และ `destroy()` (ทำลาย Chart.js Instances เก่าทิ้ง และเคลียร์ Disposables เพื่อป้องกัน Memory Leak ใน Canvas)
 - ประมวลผลสถิติและตัวชี้วัดทางการเงิน (ยอดขาย, ทุน, กำไร, Margin, AOV, จำนวนบิล)
 - สร้างและอัปเดตกราฟ Chart.js: กราฟแนวโน้มยอดขาย, กราฟช่องทางชำระเงิน, กราฟ 10 สินค้าขายดี, กราฟยอดขายตามหมวดหมู่
 - ดึงรายการสินค้าสต็อกต่ำและสินค้าสต็อกติดลบมาแสดงเตือน
 
 ### 8.7 `js/modules/settings.js` (`SettingsModule`)
+- **Lifecycle Implementation**: รองรับ `async init()` (ดึงค่า `app_settings` ล่าสุด, ตั้งค่า Form Fields, ผูก Event คอนโทรล) และ `destroy()` (ถอดถอน Disposables)
 - บันทึกการตั้งค่าร้านค้าลง Supabase ตาราง `app_settings` และแคชใน Dexie
 - จัดการข้อมูลพร้อมเพย์ และระบบ QR Code ชำระเงิน
 - จัดการเครื่องพิมพ์ความร้อน (58mm/80mm) และปุ่มทดสอบพิมพ์
@@ -505,7 +519,7 @@ END $$;
 
 | ไฟล์ (File Path) | บทบาทและฟังก์ชันการทำงานหลัก |
 | :--- | :--- |
-| `js/utils/dbHelper.js` | **Resilient Database Layer & Event Bus**: ฟังก์ชัน `resilientUpdate()`, `resilientInsert()`, `resilientDelete()` รองรับการสลับยิงผ่าน Public Anon Client อัตโนมัติเมื่อ Session หลุดหรือติด RLS, ตรวจจับและตัดฟิลด์ที่ไม่มีในสกีมาทิ้งแล้ว Retry ทันที, รองรับลำดับอาร์กิวเมนต์แบบยืดหยุ่น และมี `appBus` สำหรับส่ง Event ข้ามโมดูล |
+| `js/utils/dbHelper.js` | **Resilient Database Layer & Scoped Event Bus**: ฟังก์ชัน `resilientUpdate()`, `resilientInsert()`, `resilientDelete()` รองรับการสลับยิงผ่าน Public Anon Client อัตโนมัติเมื่อ Session หลุดหรือติด RLS, ตรวจจับและตัดฟิลด์ที่ไม่มีในสกีมาทิ้งแล้ว Retry ทันที, รองรับลำดับอาร์กิวเมนต์แบบยืดหยุ่น และมี `appBus.on()` ที่คืนฟังก์ชัน Unsubscribe สำหรับเก็บใน `this.disposables` เพื่อป้องกัน Memory Leak เมื่อโมดูลถูกทำลาย |
 | `js/utils/barcodeHelper.js` | **Thai Barcode Layout Fixer**: ฟังก์ชัน `normalizeThaiBarcode()` แปลงอักขระภาษาไทย (เช่น `ขชๆพะ` หรือตัวเลขไทย) กลับเป็นตัวเลขอารบิก `0-9` และอักษรภาษาอังกฤษ `a-z` ทันทีเมื่อผู้ใช้ลืมสลับภาษาของแป้นพิมพ์ขณะยิงบาร์โค้ด |
 | `js/utils/audio.js` | **Chiptune Audio Synthesizer**: สังเคราะห์เสียง 8-bit ด้วย Web Audio API เช่น `beep`, `hit`, `coin`, `powerup`, `laser`, `jump`, `error`, `stage_clear` พร้อมระบบจำสถานะเปิด/ปิดเสียง Mute ใน LocalStorage (`toggleAudioMute()`, `isAudioMuted()`) |
 | `js/utils/geminiApi.js` | **Gemini Vision Integration**: เชื่อมต่อ Gemini API พร้อมระบบ **Multi-Model Failover Pool** (`gemini-2.5-flash` ➔ `gemini-2.0-flash` ➔ `gemini-1.5-flash`), ควบคุม Timeout ด้วย `AbortController` (15s สำหรับทดสอบ, 45s สำหรับสแกนบิล), และถอด Markdown Code Fences อัตโนมัติ |
@@ -667,56 +681,97 @@ END $$;
    - ซ่อนข้อมูล API Key ด้วย Security Masking
 8. **ความเสถียรของเซิร์ฟเวอร์ Local Dev (`server.js`)**:
    - เพิ่มระบบดักจับข้อผิดพลาด `EADDRINUSE` แจ้งเตือนผู้ใช้อย่างสุภาพกรณีรันเซิร์ฟเวอร์ซ้ำซ้อนบนพอร์ตเดียวกัน
+9. **ระบบจัดการหน่วยความจำและวงจรชีวิตโมดูล (Module Lifecycle & Zero Memory Leaks)**:
+   - แก้ไขปัญหา Vanilla JS SPA ที่สะสม Event Listeners เมื่อแคชเชียร์เปิดเครื่องทิ้งไว้ตลอดวันจนหน่วยความจำ (RAM) บวม
+   - ย้ายแคช View จากการเก็บสตริง HTML ดิบลง `localStorage` ซึ่งเสี่ยงชนโควตา 5MB สู่ **In-Memory Cache (Map)** ใน RAM ร่วมกับ **Service Worker (sw.js)** แบบ Cache-First
+   - มีฟังก์ชัน `purgeLegacyViewCache()` ล้างสตริงแคชเก่าออกจาก `localStorage` ทันทีที่บูตระบบ คืนพื้นที่ให้เบราว์เซอร์
+   - กำหนดให้ทุกโมดูลหน้าจอมี `this.disposables = []`, `async init()`, และ `destroy()` โดยมี `viewLoader.js` (`setActiveModule`) สั่ง `.destroy()` โมดูลเดิมอัตโนมัติก่อนเปิดโมดูลใหม่เสมอ
+   - ฟังก์ชัน `appBus.on()` คืนค่า Unsubscribe Callback เพื่อเก็บเข้า `this.disposables` ถอดถอนได้สะอาดยกชุดเมื่อสลับหน้า
 
 ---
 
 ## 15. กฎและข้อบังคับสำคัญสำหรับผู้พัฒนาและ AI (Critical Rules & Directives)
 
-> **คำเตือนสำหรับ AI Agents และผู้พัฒนาซอฟต์แวร์ทุกคน:** กฎเหล่านี้เป็นข้อบังคับเด็ดขาดที่ต้องปฏิบัติตามอย่างเคร่งครัด
+> ⚠️ **คำเตือนสำหรับ AI Agents และผู้พัฒนาซอฟต์แวร์ทุกคน:** กฎทั้ง 10 ข้อด้านล่างนี้เป็นข้อบังคับเด็ดขาด (Mandatory Rules) ห้ามละเมิดเด็ดขาดไม่ว่าในกรณีใดๆ
 
 ### 📌 กฎข้อที่ 1: กฎการคืนโฟกัสช่องกรอก Barcode (Barcode Input Focus Rule)
-- หน้าจอที่มีการสแกนบาร์โค้ด (`barcode-input` หรือ `prod-search-input`) **จะต้องส่งโฟกัสกลับไปที่ช่องกรอกบาร์โค้ดทุกครั้ง** เมื่อเสร็จสิ้นกระบวนการทำงานใดๆ บน Pop-up / Modal / Button:
-  - เมื่อจบ flow การ **Re-new Barcode** (จับคู่บาร์โค้ดใหม่)
-  - เมื่อจบ flow การ **+ เพิ่มสินค้าใหม่** (Add New Product CRUD) ทั้งกรณีบันทึกสำเร็จหรือกดยกเลิก
-  - เมื่อปิด Modal แจ้งเตือนบาร์โค้ดไม่พบ (`barcode-not-found-modal`)
+- หน้าจอที่มีการสแกนบาร์โค้ด (`#pos-barcode-input`, `#prod-search-input`, หรือหน้า Stock-In) **จะต้องส่งโฟกัสกลับไปที่ช่องกรอกบาร์โค้ดทุกครั้ง** เมื่อสิ้นสุด flow การทำงานบน Pop-up / Modal / Button:
+  - เมื่อจบ flow การ **Re-new Barcode** (จับคู่บาร์โค้ดใหม่ให้กับสินค้าเดิม)
+  - เมื่อจบ flow การ **+ เพิ่มสินค้าใหม่** (Product CRUD Modal) ทั้งกรณีกดยืนยันสำเร็จ หรือกดยกเลิก/ปิด Modal
+  - เมื่อปิด Modal แจ้งเตือนบาร์โค้ดไม่พบ (`barcode-not-found-modal`) หรือ Modal ยืนยันใดๆ
   - เมื่อสแกนและเพิ่มสินค้าลงตะกร้าในหน้าขาย (POS)
-  - เมื่อจบการขาย ชำระเงิน หรือล้างตะกร้า
-- **รูปแบบคำสั่ง:** ต้องหน่วงเวลาเล็กน้อยเพื่อให้ DOM render และ Modal transition เสร็จสมบูรณ์:
+  - เมื่อเสร็จสิ้นการชำระเงิน หรือเมื่อกดล้างตะกร้าสินค้า
+  - เมื่อกดย้อนกลับจากหน้าชำระเงิน (`views/payment.html`) กลับมายังหน้าขายหลัก (`views/pos.html`)
+- **รูปแบบคำสั่ง:** ต้องหน่วงเวลาเล็กน้อยเพื่อให้ DOM render และ Animation เสร็จสมบูรณ์:
   ```javascript
   setTimeout(() => {
-    const input = document.getElementById('barcode-input') || document.getElementById('prod-search-input');
+    const input = document.getElementById('pos-barcode-input') || document.getElementById('prod-search-input');
     if (input) input.focus();
   }, 100);
   ```
 
 ### 📌 กฎข้อที่ 2: กฎความเสถียรฐานข้อมูล Dual-Client Fallback (Resilient Database Rule)
-- **ห้าม** ยิงคำสั่ง `supabase.from('...').update/insert/delete` ตรงๆ โดยไม่มีระบบ Fallback
-- **ข้อบังคับ:** ต้องเรียกผ่านฟังก์ชันผู้ช่วยส่วนกลางใน `js/utils/dbHelper.js` เสมอ:
+- **ห้าม** ยิงคำสั่ง `supabase.from('...').update/insert/delete` ตรงๆ โดยไม่มีระบบ Fallback สำรองเด็ดขาด
+- **ข้อบังคับ:** ทุกการเขียนฐานข้อมูลต้องเรียกผ่าน Helper กลางใน `js/utils/dbHelper.js` เสมอ:
   - `resilientUpdate(supabase, table, id, payload)`
   - `resilientInsert(supabase, table, payload)`
   - `resilientDelete(supabase, table, id)`
-- ตัวช่วยเหล่านี้จะสลับไปยิงผ่าน `window.publicSupabase` (Anon Client) อัตโนมัติหากพบปัญหา Session หลุด และตรวจจับคอลัมน์ที่ไม่ตรงกับสกีมาเพื่อตัดทิ้งและ Retry ทันที
+- ตัวช่วยเหล่านี้จะสลับไปยิงผ่าน `window.publicSupabase` (Anon Client) อัตโนมัติหากติด RLS หรือ Session หลุด และตรวจจับคอลัมน์ที่ไม่ตรงกับสกีมา (`PGRST204`) เพื่อตัดทิ้งแล้ว Retry ทันที
 
-### 📌 กฎข้อที่ 3: กฎความปลอดภัยของลำดับพารามิเตอร์และการเปรียบเทียบ ID (Parameter & ID Safety Rule)
+### 📌 กฎข้อที่ 3: กฎลำดับพารามิเตอร์และการเปรียบเทียบ ID (Parameter & ID Safety Rule)
 1. **ลำดับพารามิเตอร์ของ `resilientUpdate`:**
-   - มาตรฐานหลัก: `resilientUpdate(supabase, table, id, payload)`
-   - ผู้พัฒนาต้องส่ง `id` ก่อน `payload` เสมอ
+   - มาตรฐานหลัก: `resilientUpdate(supabase, table, id, payload)` (ส่ง `id` ก่อน `payload` เสมอ)
 2. **การเปรียบเทียบ ID ข้ามโมดูล:**
-   - ห้ามใช้ `a === b` ตรงๆ กับ ID ที่มาจาก Supabase และ IndexedDB เพราะชนิดข้อมูลอาจเป็น `String`, `Number`, หรือ `BigInt`
-   - **ข้อบังคับ:** ต้องใช้ `safeIdCompare(a, b)` หรือแปลงด้วย `safeNumberId(id)` เสมอ
+   - **ห้าม** ใช้ `a === b` ตรงๆ กับ ID ที่มาจาก Supabase และ IndexedDB เพราะชนิดข้อมูลอาจเป็น `String`, `Number`, หรือ `BigInt`
+   - **ข้อบังคับ:** ต้องใช้ `safeIdCompare(a, b)` หรือแปลงด้วย `safeNumberId(id)` จาก `dbHelper.js` เสมอ
 
-### 📌 กฎข้อที่ 4: กฎการคืนสถานะปุ่มก่อนแสดง Dialog (Non-Blocking UI Before Alert Rule)
+### 📌 กฎข้อที่ 4: กฎระบบดักจับบาร์โค้ดฮาร์ดแวร์และแก้ปัญหาผังแป้นพิมพ์ไทย (Hardware Barcode Engine & Thai Auto-Correction)
+1. **In-Memory Capture ผ่าน Physical Keys (`e.code`):**
+   - ดักจับเหตุการณ์ที่ Capture Phase (`window.addEventListener('keydown', ..., true)`)
+   - สกัดตัวเลขจาก `e.code.startsWith('Digit')` และ `e.code.startsWith('Numpad')` ไม่ให้อิงกับภาษาแป้นพิมพ์ของระบบปฏิบัติการ
+   - เมื่อโฟกัสอยู่ที่ `#pos-barcode-input` ให้สั่ง `e.preventDefault()` ป้องกัน DOM Repaint Lag และอักขระไทยหลุดเข้า DOM
+2. **ระบบความเร็วปรับตัวได้ (Adaptive Cadence Dual-Threshold):**
+   - ใช้ `CADENCE_WAKEUP = 180ms` สำหรับ 1-3 ตัวแรกช่วงหัวอ่าน Bluetooth ตื่นจากโหมด Standby และ `CADENCE_FAST = 55ms` สำหรับตัวถัดไป เพื่อป้องกันเลขตัวหน้านำหลุดหาย
+3. **Fallback Thai Normalization:**
+   - ทุกจุดที่รับ Input บาร์โค้ดแบบ Manual หรือ Paste ต้องผ่าน `normalizeThaiBarcode(rawInput)` เสมอ
+
+### 📌 กฎข้อที่ 5: กฎการคืนสถานะปุ่มก่อนแสดง Dialog (Non-Blocking UI Before Alert Rule)
 - คำสั่ง `alert()` หรือ `confirm()` ของเบราว์เซอร์เป็น Synchronous Blocking Call ที่จะหยุดการทำงานของ JavaScript ทันที
-- **ข้อบังคับ:** ก่อนเรียก `alert(...)` แจ้งเตือนความสำเร็จหรือล้มเหลว **ต้องคืนสถานะปุ่มกด (Disabled = false และเปลี่ยนข้อความปุ่มกลับเป็นปกติ) ก่อนเสมอ**
+- **ข้อบังคับ:** ก่อนเรียก `alert(...)` หรือ `confirm(...)` แจ้งเตือนความสำเร็จหรือล้มเหลว **ต้องคืนสถานะปุ่มกด (Disabled = false และเปลี่ยนข้อความปุ่มกลับเป็นปกติ) ก่อนเสมอ**
 
-### 📌 กฎข้อที่ 5: กฎความสอดคล้องของตาราง Stock Movements (Stock Movements Schema Rule)
+### 📌 กฎข้อที่ 6: กฎความสอดคล้องของตาราง Stock Movements (Stock Movements Schema Rule)
 - สกีมาของตาราง `stock_movements` ในฐานข้อมูล Supabase ประกอบด้วยคอลัมน์:
   `id`, `product_id`, `type`, `quantity`, `unit_cost`, `note`, `created_at`
 - **ห้าม** ส่งฟิลด์ที่ไม่มีอยู่ในตาราง เช่น `ref_invoice_no` เข้าไปเป็นคอลัมน์เดี่ยวเด็ดขาด
-- หากมีข้อมูลเลขอ้างอิงเอกสารหรือใบกำกับภาษี ให้ผนวกเข้าในฟิลด์ `note` เช่น:
+- หากมีข้อมูลเลขอ้างอิงเอกสารหรือชื่อผู้ขาย ให้ผนวกเข้าในฟิลด์ `note` เช่น:
   ```javascript
   note: `รับเข้า ${inQty} ชิ้น จาก ${supplier} [เลขที่เอกสาร: ${invoiceNo}]`
   ```
+
+### 📌 กฎข้อที่ 7: กฎการออกแบบหน้าจอ Zero-Scroll สำหรับแท็บเล็ต (Tablet 1024x640 Landscape Reference)
+- หน้าจอแท็บเล็ตที่ใช้งานจริงมีขนาด `1024 x 640 px` แนวนอน เหลือพื้นที่แสดงผลจริงแนวตั้งประมาณ **540px**
+- **ข้อบังคับ Zero-Scroll:**
+  1. หน้าสรุปบิลและชำระเงิน (`views/payment.html`) ต้องแสดงผลครบถ้วนในหน้าจอเดียว **ห้ามมี Outer Scrollbar**
+  2. ปุ่ม **"รับเงินสดพอดี & ตัดสต็อก [Enter]"** จะต้องปรากฏอยู่บนจอเสมอ 100% โดยที่แคชเชียร์ไม่ต้องเลื่อนจอลงไปกด
+  3. อนุญาตให้เกิด Scrollbar เฉพาะภายในกล่องรายการสินค้า (`#modal-receipt-items`) เท่านั้นเมื่อมีสินค้าจำนวนมากเกินความสูง
+
+### 📌 กฎข้อที่ 8: กฎระบบแป้นตัวเลขรวมศูนย์ (Unified On-Screen Numpad & Zero-Replace Protection)
+- **การสลับเป้าหมาย (Active Target Routing):** แผง Numpad ในหน้าชำระเงินรองรับทั้งการกรอกเงินสด (`cash`) และส่วนลด (`discount`)
+- **การแก้ปัญหาเลข 0 ค้าง (Zero-Replace Protection):** หากค่าในช่องกรอกเป็น `0` หรือเป็นค่าว่าง การกดเลข 1-9 จะต้องเข้าแทนที่เลข `0` ทันที
+- **การบล็อกคีย์บอร์ดเสมือนของระบบ (Soft-Keyboard Suppression):** ช่องกรอกที่ใช้ปืนสแกนหรือ Numpad ของแอป ต้องใส่ `inputmode="none"` เสมอ เพื่อป้องกัน Virtual Keyboard ของ Android เด้งขึ้นมาบดบังหน้าจอ
+
+### 📌 กฎข้อที่ 9: กฎการป้องกันเบราว์เซอร์แคชและวงจรชีวิตโมดูล (Centralized Cache Invalidation & Module Lifecycle Mandate)
+- **ข้อบังคับการปรับเวอร์ชัน (Cache Invalidation):** ทุกครั้งที่มีการแก้ไขไฟล์หรือ Release ระบบ (`views/*.html`, `js/modules/*.js`, `js/utils/*.js`, `css/*.css`):
+  1. อัปเดตค่า `APP_VERSION` ใน `js/config.js` (เช่น `export const APP_VERSION = '1.2.091826';`) ซึ่ง `viewLoader.js` จะดึงไปแนบท้าย query parameter ของวิวทุกไฟล์ (`?v=${APP_VERSION}`) อัตโนมัติ
+  2. อัปเดต `CACHE_NAME` ใน `sw.js` เพื่อให้ Service Worker เคลียร์และแคชไฟล์ใหม่
+  3. อัปเดต query parameter ท้ายไฟล์ใน `index.html` หากมีการแก้ไขสคริปต์หลัก
+- **ข้อบังคับวงจรชีวิตโมดูล (Lifecycle & Disposables):**
+  - ทุกโมดูลหน้าจอต้องมี `this.disposables = []`, เมธอด `async init()`, และเมธอด `destroy()`
+  - ทุกการดักฟัง `appBus.on(...)` หรือ DOM Events ต้องเก็บฟังก์ชัน Unsubscribe ลงใน `this.disposables` เสมอ และต้องสลับหน้าผ่าน `setActiveModule()` เพื่อสั่งทำลายโมดูลเดิม ป้องกันการรั่วไหลของหน่วยความจำ (Memory Leak) บนแท็บเล็ตแคชเชียร์
+
+### 📌 กฎข้อที่ 10: กฎความปลอดภัยและการจัดการข้อมูลความลับ (Strict No-Secret Exposing Rule)
+- **ห้าม** ใส่ข้อมูลความลับ เช่น API Keys (เช่น Gemini API Key), Database Password, Supabase Service Role Key, หรือ Token ลงในซอร์สโค้ดฝั่ง Client (`index.html`, `js/*`) หรือเอกสาร Markdown (`AGENTS.md`, `README.md`) เด็ดขาด
+- การตั้งค่า Gemini API Key, Google Apps Script Web App URL หรือบัญชี PromptPay จะต้องถูกบันทึกลงในตาราง `app_settings` บน Supabase / IndexedDB ผ่านหน้าจอตั้งค่าระบบ (`views/settings.html`) พร้อมการทำ Security Masking เสมอ
 
 ---
 

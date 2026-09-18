@@ -145,16 +145,16 @@
 
 ---
 
-### 📌 กฎข้อที่ 9: กฎการป้องกันเบราว์เซอร์แคชไฟล์โมดูล (Cache Busting Mandate)
-> **Mandate:** ระบบใช้สถาปัตยกรรม Partial View Loading ที่แคชไฟล์ HTML ใน `localStorage` เพื่อความเร็วสูงสุด
-- **ข้อบังคับ:** ทุกครั้งที่มีการแก้ไขไฟล์:
-  - `views/*.html`
-  - `js/modules/*.js` หรือ `js/utils/*.js`
-  - `css/*.css`
-- **จะต้องทำการปรับเปลี่ยนเลขเวอร์ชัน (Cache Busting) เสมอ:**
-  1. ปรับค่า `CACHE_PREFIX` (เช่น `pixel_view_cache_v120_phase3_5_`) ใน `js/core/viewLoader.js`
-  2. อัปเดต query parameter ท้ายไฟล์ใน `index.html` (เช่น `retro-pixel.css?v=...`, `viewLoader.js?v=...`, `pos.js?v=...`)
-- หากละเลยขั้นตอนนี้ เครื่องแท็บเล็ตของผู้ใช้จะยังคงโหลดโค้ดเก่าจากแคชเครื่อง ส่งผลให้ฟีเจอร์ใหม่ไม่ทำงาน
+### 📌 กฎข้อที่ 9: กฎการป้องกันเบราว์เซอร์แคชและวงจรชีวิตโมดูล (Centralized Cache Invalidation & Module Lifecycle Mandate)
+> **Mandate:** ระบบใช้สถาปัตยกรรม In-Memory View Cache ร่วมกับ Service Worker (Cache-First) เพื่อความเร็วสูงสุดและไม่กินพื้นที่ `localStorage` โดยมีศูนย์กลางเลขเวอร์ชัน (Single Source of Truth) อยู่ที่ `js/config.js` (`APP_VERSION`) และควบคุมหน่วยความจำด้วยวงจรชีวิตโมดูลมาตรฐาน
+- **ข้อบังคับการปรับเวอร์ชัน (Cache Invalidation):** ทุกครั้งที่มีการแก้ไขไฟล์หรือ Release ระบบ (`views/*.html`, `js/modules/*.js`, `js/utils/*.js`, `css/*.css`):
+  1. อัปเดตค่า `APP_VERSION` ใน `js/config.js` (เช่น `export const APP_VERSION = '1.2.091826';`) ซึ่ง `viewLoader.js` จะดึงไปแนบท้าย query parameter ของวิวทุกไฟล์ (`?v=${APP_VERSION}`) อัตโนมัติ
+  2. อัปเดต `CACHE_NAME` ใน `sw.js` เพื่อให้ Service Worker เคลียร์และแคชไฟล์ใหม่
+  3. อัปเดต query parameter ท้ายไฟล์ใน `index.html` หากมีการแก้ไขสคริปต์หลัก
+- **ข้อบังคับวงจรชีวิตโมดูล (Lifecycle & Disposables):**
+  - ทุกโมดูลหน้าจอต้องมี `this.disposables = []`, เมธอด `async init()`, และเมธอด `destroy()`
+  - ทุกการดักฟัง `appBus.on(...)` หรือ DOM Events ต้องเก็บฟังก์ชัน Unsubscribe ลงใน `this.disposables` เสมอ และต้องสลับหน้าผ่าน `setActiveModule()` เพื่อสั่งทำลายโมดูลเดิม ป้องกันการรั่วไหลของหน่วยความจำ (Memory Leak) บนแท็บเล็ตแคชเชียร์
+- หากละเลยขั้นตอนนี้ เครื่องแท็บเล็ตของผู้ใช้จะยังคงโหลดโค้ดเก่าจากแคชเครื่อง หรือเกิดอาการหน่วง/แครชจากการสะสมของ Event Listener
 
 ---
 
@@ -173,15 +173,16 @@
 │                                                                                  │
 │   index.html (Core Shell) ──► js/core/viewLoader.js ──► views/*.html (Partials)  │
 │   ├── Header (Network Status, Sound Toggle, Theme Switcher, Navigation)         │
-│   └── Viewport (#view-container: pos, payment, products, stockin, orders, etc.)  │
+│   └── Viewport (#app-viewport: pos, payment, products, stockin, orders, etc.)    │
 │                                                                                  │
 │   ┌──────────────────────────────────────────────────────────────────────────┐   │
-│   │                      Core Modules (Native ES Modules)                    │   │
+│   │        Core Modules (Standardized Lifecycle: init / destroy)             │   │
 │   │   pos.js        products.js       categories.js      orders.js           │   │
 │   │   stock-in.js   reports.js        settings.js        pwa-install.js      │   │
 │   └────────────────────────────────────┬─────────────────────────────────────┘   │
 │                                        │                                         │
 │                      Central Event Bus │ (appBus: 'products:changed', etc.)      │
+│                      Scoped Disposals  │ (returns unsubscribe callback)          │
 │                                        ▼                                         │
 │   ┌──────────────────────────────────────────────────────────────────────────┐   │
 │   │                             Helper Services                              │   │
@@ -208,17 +209,35 @@
       └───────────────────────────────┘           └────────────────────────────┘
 ```
 
-### 3.1 สถาปัตยกรรม Front-end View Loader & Caching
-- **Single Page Application (SPA):** ไฟล์ `index.html` ทำหน้าที่เป็น Core Shell ที่โหลดไลบรารีพื้นฐานและแสดงผล Navigation Bar
-- **Dynamic View Partial Loading (`viewLoader.js`):** เมื่อมีการสลับหน้า ระบบจะ fetch ไฟล์ HTML จากโฟลเดอร์ `views/` มาฝังลงใน `#view-container`
-- **Client Cache Layer:** ไฟล์ View แต่ละหน้าจะถูกเก็บใน `localStorage` ตามคีย์ `pixel_view_cache_vXXX_{page}` เพื่อให้สลับหน้าได้เร็วระดับ 0ms และมี Navigation Guard (`window.setAppLoading()`) ป้องกันการกดสลับหน้าซ้ำขณะระบบโหลดข้อมูล
+### 3.1 สถาปัตยกรรม Front-end View Loader, In-Memory Caching & Versioning
+- **Single Page Application (SPA):** ไฟล์ `index.html` ทำหน้าที่เป็น Core Shell โหลดไลบรารีพื้นฐาน แสดง Header และควบคุมการสลับหน้าในคอนเทนเนอร์ `#app-viewport`
+- **Dynamic View Partial Loading (`viewLoader.js`):** เมื่อมีการสลับหน้า ระบบจะ fetch ไฟล์ HTML จากโฟลเดอร์ `views/` มาฝังลงใน `#app-viewport`
+- **In-Memory View Cache (Map):** เก็บข้อมูล Partial HTML views ในหน่วยความจำ RAM ของเบราว์เซอร์ (`const viewCache = new Map()`) ทำให้การสลับหน้าเร็วระดับ sub-millisecond ในช่วง Runtime โดย **ไม่เปลืองโควตา 5MB ของ `localStorage`** (ตัดปัญหา QuotaExceededError 100%)
+- **Service Worker Offline Persistence (`sw.js`):** แคชไฟล์ HTML แบบ Cache-First ผ่าน Service Worker โดยใช้ `{ ignoreSearch: true }` ทำให้ทำงานออฟไลน์ได้สมบูรณ์และตัดปัญหา Cache-busting query parameter ไม่ตรงกับแคช
+- **Legacy Cache Auto-Purge (`purgeLegacyViewCache()`):** ทำการสแกนและลบคีย์แคชเก่า `pixel_view_cache_*` ออกจาก `localStorage` ทันทีที่ระบบบูต เพื่อคืนพื้นที่ให้เบราว์เซอร์
+- **Centralized Versioning (`APP_VERSION`):** กำหนดเลขเวอร์ชันที่ศูนย์กลางเดียวใน `js/config.js` (`export const APP_VERSION = '1.2.091826';`) โดย `viewLoader.js` จะดึงค่านี้ไปแนบ query parameter `?v=${APP_VERSION}` อัตโนมัติ ป้องกันปัญหาเบราว์เซอร์แคชไฟล์เก่าค้าง
+- **Navigation Guard:** ควบคุมด้วยคลาส `nav-loading-locked` และ `window.setAppLoading()` ล็อกการกดสลับหน้าซ้ำขณะระบบกำลังดาวน์โหลดข้อมูลแคตตาล็อกสินค้าเริ่มต้น
 
-### 3.2 ระบบ Event Bus รวมศูนย์ (`appBus`)
+### 3.2 ระบบ Event Bus รวมศูนย์ (`appBus`) และวงจรชีวิตโมดูล (Module Lifecycle Architecture)
 - เพื่อลดการผูกมัดของโค้ด (Decoupled Architecture) โมดูลต่างๆ จะสื่อสารกันผ่าน `appBus` (ตั้งอยู่ใน `js/utils/dbHelper.js`):
   - `appBus.emit('products:changed', { action: 'save' })`: แจ้งเตือนทุกหน้า (POS, Products, Dashboard) ให้รีเฟรชแคตตาล็อกสินค้าพร้อมกันแบบ Real-time
   - `appBus.emit('stock:updated', { productId, newStock })`: แจ้งเตือนเมื่อมีการตัดสต็อกหรือรับเข้าสต็อก
   - `appBus.emit('categories:changed')`: อัปเดตรายการหมวดหมู่และป้ายนับจำนวนสินค้า
   - `appBus.emit('theme:changed', { theme })`: ปรับแต่งส่วนประกอบ UI เมื่อมีการสลับธีม
+- **Disposable Event Subscriptions:** เมธอด `appBus.on(event, handler)` ได้รับการปรับปรุงให้คืนค่าเป็นฟังก์ชัน Unsubscribe สำหรับยกเลิกการดักฟัง:
+  ```javascript
+  const unregister = appBus.on('products:changed', () => this.refresh());
+  this.disposables.push(unregister);
+  ```
+- **Module Lifecycle Interface & Zero Memory Leaks:**
+  - บนแท็บเล็ตแคชเชียร์ที่เปิดใช้งานตลอดกะ 8–12 ชั่วโมง การสลับหน้าไปมาซ้ำๆ โดยไม่มีการถอดถอน Event Listener จะทำให้เกิด Memory Leak สะสมจนเบราว์เซอร์หน่วงหรือแครช
+  - **ข้อบังคับ:** โมดูลแสดงผลหลักทั้ง 7 โมดูล (`pos.js`, `products.js`, `categories.js`, `orders.js`, `stock-in.js`, `reports.js`, `settings.js`) ต้องมีอินเทอร์เฟซมาตรฐานเดียวกัน:
+    1. `this.disposables = []`: เก็บฟังก์ชัน Unsubscribe ของ Event Bus และ DOM Listeners
+    2. `async init()` หรือ `init()`: ทำการ bind events และ render หน้าจอ
+    3. `destroy()`: วนลูปเรียกฟังก์ชันใน `this.disposables` ทั้งหมดเพื่อถอดถอน listener และเคลียร์ DOM Reference
+- **Lifecycle Coordination via `viewLoader.js` (`setActiveModule`):**
+  - ใน `js/core/viewLoader.js` มีฟังก์ชัน `setActiveModule(targetModule)`
+  - เมื่อผู้ใช้สลับหน้า (ผ่าน `switchView()` ใน `index.html`) ระบบจะเรียก `setActiveModule(targetModule)` ซึ่งจะสั่ง `.destroy()` โมดูลเดิมอัตโนมัติก่อนลงทะเบียนโมดูลใหม่เสมอ ตัดโอกาสเกิด Memory Leak และ Event Trigger ซ้ำซ้อน 100%
 
 ### 3.3 ฐานข้อมูลแคชในเครื่องและการทำงานออฟไลน์ (`Dexie.js` & `sync.js`)
 - ฐานข้อมูล IndexedDB ชื่อ `RetroArcadePosDB` ประกอบด้วย 4 ตาราง: `products`, `categories`, `offline_orders`, `settings`
@@ -372,7 +391,7 @@
 | **Thai Barcode Keyboard Layout** | สแกนเนอร์บาร์โค้ดยิงเป็นภาษาไทย เช่น `๘๘๕๐...` ทำให้ค้นหาสินค้าไม่พบ | กรอง Input ด้วย `normalizeThaiBarcode()` ก่อนค้นหาและบันทึกทุกครั้ง |
 | **ID Type Mismatch** | ID ที่ได้จาก Supabase เป็น BigInt แต่ใน Local memory อาจเป็น String ทำให้ `find()` หรือ `===` ไม่ตรงกัน | ใช้ `safeIdCompare(a, b)` หรือ `safeNumberId(id)` จาก `dbHelper.js` เสมอ |
 | **Zero-Padding on Number Inputs** | เมื่อเปิดช่องกรอกที่มีค่าเริ่มต้น `0` การพิมพ์เลข 5 เข้าไปจะกลายเป็น `50` หรือ `05` | ใช้ตรรกะ **กฎข้อที่ 8**: ตรวจจับหากค่าเดิมเป็น `0` การกดเลข 1-9 จะเข้าแทนที่เลข `0` ทันที |
-| **Stale View in LocalStorage Cache** | แก้ไขไฟล์ HTML ใน `views/` แล้วรีเฟรชหน้าเว็บ แต่หน้าจอไม่เปลี่ยน | ปฏิบัติตาม **กฎข้อที่ 9**: ทำการ bump `CACHE_PREFIX` ใน `viewLoader.js` ทุกครั้งที่มีการแก้โค้ดวิว |
+| **Memory Leaks & Stale View Cache** | สลับหน้าไปมาแล้ว Listener บน window/appBus สะสมทับซ้อน (RAM บวม) หรือวิวแคชค้าง | ปฏิบัติตาม **กฎข้อที่ 9**: ทุกโมดูลต้องมี `init()` / `destroy()` และเก็บการยกเลิกใน `this.disposables` พร้อมสลับผ่าน `setActiveModule()`; แคชวิวใช้ In-Memory Map + SW และอัปเดต `APP_VERSION` ใน `js/config.js` จุดเดียว |
 | **Tablet Viewport Height Overflow** | การใส่ padding หรือความสูงองค์ประกอบคงที่มากเกินไป ทำให้ปุ่มยืนยันหลุดขอบจอ 640px | ปฏิบัติตาม **กฎข้อที่ 7**: ใช้โครงสร้าง Zero-Scroll Layout และควบคุมความสูงให้ไม่เกิน 540px |
 | **Virtual Keyboard Obscuring Layout** | การแตะช่อง Input บนแท็บเล็ตทำให้คีย์บอร์ดของ Android เด้งขึ้นมาบดบังหน้าจอ | ใส่ `inputmode="none"` บนช่องรับเงินสดและส่วนลด เพื่อบังคับใช้ Numpad ของแอป |
 | **PromptPay Checksum Failure** | คำนวณ CRC16 ผิดสูตรทำให้แอปธนาคารสแกนจ่ายเงินไม่ผ่าน | ใช้ CRC16-CCITT (0xFFFF) 4 หลักพิมพ์ใหญ่ ตามมาตรฐาน EMVCo QR เสมอ |
@@ -385,11 +404,12 @@
 
 ## 6. แนวทางการเขียนโค้ดและขยายโมดูล (Coding Conventions & Best Practices)
 
-1. **สถาปัตยกรรมแบบแยกส่วน (Modular Architecture):**
+1. **สถาปัตยกรรมแบบแยกส่วนและวงจรชีวิต (Modular Architecture & Lifecycle):**
    - ส่วนติดต่อผู้ใช้อยู่ใน `views/*.html`
    - โมดูลตรรกะหลักอยู่ใน `js/modules/*.js` (Export เป็น Class เช่น `PosModule`, `ProductsModule`)
    - เครื่องมือช่วยเหลือทั่วไปอยู่ใน `js/utils/*.js`
    - ใช้ Standard ES Modules (`import` / `export`) หลีกเลี่ยงตัวแปร Global นอกเหนือจากตัวแปรจำเป็นอย่าง `window.supabase`
+   - **ข้อบังคับวงจรชีวิตโมดูล:** ทุกโมดูลหน้าจอต้องมี `this.disposables = []`, `async init()`, และ `destroy()` เพื่อปลดเปลื้อง Event Listener และ Resource เมื่อผู้ใช้สลับหน้า ป้องกัน Memory Leak 100%
 2. **ระบบเสียงตอบสนอง (Audio Feedback):**
    - ใช้ `playAudio('coin')` เมื่อจบการขายสำเร็จ หรือบันทึกข้อมูลเรียบร้อย
    - ใช้ `playAudio('beep')` เมื่อยิงบาร์โค้ดสำเร็จ หรือกดปุ่มแป้นตัวเลข
