@@ -131,19 +131,23 @@ about_pos/
 │   │   ├── settings.js         # โมดูลตั้งค่าร้านค้า (Lifecycle: init / destroy, ภาษี VAT, เครื่องพิมพ์, Gemini Key, GAS URL)
 │   │   └── stock-in.js         # โมดูลรับเข้าสต็อก AI (Lifecycle: init / destroy, Gemini Vision, Staging Cards/Table, Stepper)
 │   └── utils/
-│       ├── audio.js            # ระบบสังเคราะห์เสียง Chiptune 8-bit (Web Audio API) พร้อมระบบเปิด/ปิดเสียง Mute
-│       ├── barcodeHelper.js    # แก้ไขปัญหาแป้นพิมพ์ภาษาไทย (Thai-English Layout Auto-Correction)
+│       ├── audio.js            # ระบบสังเคราะห์เสียง Chiptune 8-bit (Web Audio API) พร้อมระบบเปิด/ปิดเสียง Mute และ Volume Control
+│       ├── barcodeHelper.js    # แก้ไขปัญหาแป้นพิมพ์ภาษาไทย (Thai-English Layout Auto-Correction: เกษมณี & ปัตตโชติ)
 │       ├── clipboard.js        # ฟังก์ชันคัดลอกข้อความลง Clipboard พร้อม Toast แจ้งเตือน
-│       ├── dbHelper.js         # Resilient DB Layer (สลับ Client, แก้ Schema Error) และ Event Bus (appBus คืนฟังก์ชัน Unsubscribe)
+│       ├── dbHelper.js         # Resilient DB Layer (สลับ Client, แก้ Schema Error ด้วย while loop) และ Event Bus (appBus)
 │       ├── gdrive.js           # ตัวแปลงลิงก์ Google Drive ID ไปเป็น Direct Google UserContent CDN URL
 │       ├── geminiApi.js        # เชื่อมต่อ Google Gemini Flash API พร้อม Failover Pool และ Timeout Protection
 │       ├── imageUploader.js    # บีบอัดรูปภาพหน้าจอ/ไฟล์, แปลงเป็น Base64 แล้วส่งไปยัง Google Apps Script
 │       ├── promptpay.js        # สร้าง Payload ข้อความ PromptPay EMVCo QR พร้อมคำนวณ CRC16-CCITT Checksum
-│       └── thermal-printer.js  # จัดรูปแบบข้อความใบเสร็จรับเงิน ESC/POS และส่งคำสั่งพิมพ์ลงกระดาษความร้อน
+│       ├── themeHelper.js      # จัดการสลับธีมคู่ขนาน ('warm-arcade' และ 'cyber-emerald') บันทึก LocalStorage และยิง Event
+│       ├── thermal-printer.js  # จัดรูปแบบข้อความใบเสร็จรับเงิน ESC/POS และส่งคำสั่งพิมพ์ลงกระดาษความร้อน
+│       └── uiHelper.js         # Micro-Loader Overlay แบบ Retro Arcade พร้อมฟังก์ชัน showLoader / hideLoader / withLoader
+├── tools/
+│   └── bump-version.js         # สคริปต์ Node.js ปรับเวอร์ชันอัตโนมัติ (Atomic Bump: js/config.js + sw.js) ผ่าน npm run bump
 ├── views/
 │   ├── categories.html         # ส่วนติดต่อผู้ใช้หน้าจัดการหมวดหมู่สินค้า
 │   ├── dashboard.html          # ส่วนติดต่อผู้ใช้หน้าแดชบอร์ดรายงานและกราฟวิเคราะห์ยอดขาย
-│   ├── modals.html             # ศูนย์รวมโมดัลทั้งหมด 14 โมดัล (Product CRUD, Re-new Barcode, Camera, ฯลฯ)
+│   ├── modals.html             # ศูนย์รวมโมดัลหลักของระบบ (Product CRUD, Re-new Barcode, Camera, ฯลฯ)
 │   ├── orders.html             # ส่วนติดต่อผู้ใช้หน้าประวัติการขายและบิลย้อนหลัง
 │   ├── payment.html            # ส่วนติดต่อผู้ใช้หน้าต่างชำระเงิน (เงินสด, PromptPay, QR ร้านค้า, Cash Numpad)
 │   ├── pos.html                # ส่วนติดต่อผู้ใช้หน้าขายหน้าร้าน (Product Grid + ตะกร้าสินค้า + Qty Numpad)
@@ -154,7 +158,7 @@ about_pos/
 ├── index.html                  # ไฟล์ Shell หลักของเว็บแอปพลิเคชัน (Header, View Container, Scripts)
 ├── manifest.json               # การกำหนดค่า Web App Manifest สำหรับติดตั้ง PWA
 ├── metadata.json               # ข้อมูล Metadata ของโปรเจกต์
-├── package.json                # ข้อมูล Dependencies และ Scripts (dev, start, build:css)
+├── package.json                # ข้อมูล Dependencies และ Scripts (dev, start, build:css, bump)
 ├── README.md                   # เอกสารคู่มือระบบฉบับสมบูรณ์ (ไฟล์นี้)
 ├── server.js                   # Node.js HTTP Web Server ในตัวพร้อมระบบตรวจจับพอร์ตชน
 ├── sw.js                       # Service Worker แคชไฟล์สำหรับทำงานออฟไลน์
@@ -320,25 +324,41 @@ END $$;
 
 ### 6.1 หน้าจอขายหน้าร้าน (POS Terminal) - `views/pos.html`
 - **Catalog Panel (ฝั่งซ้าย)**:
-  - ช่องกรอกค้นหาชื่อสินค้า/ยิงบาร์โค้ดฮาร์ดแวร์ (`#barcode-input`) พร้อมปุ่มล้างคำค้นหา และปุ่มเปิดกล้องสแกนบาร์โค้ด
+  - **ปุ่มสั่งงานด้วยเสียง 2 แถวฝั่งซ้ายสุด (2-Row Tall Voice-to-Cart Microphone [F3 / แตะไมค์])**:
+    - กินพื้นที่ 2 แถว (แถวบาร์โค้ด + แถวหมวดหมู่) ทางฝั่งซ้ายสุด กว้าง 50-56px กดง่ายบนจอสัมผัส
+    - สั่งเพิ่มสินค้าด้วยเสียงพูดภาษาไทย (Web Speech API) แปลงชื่อสินค้าและจำนวนเข้าสู่ตะกร้าขายอัตโนมัติ
+    - สัญญาณเสียงไกด์ **"ติ๊ด!"** ทันทีที่ไมค์เปิดทำงาน
+    - ระบบ Visualizer สองระดับ: แอนิเมชันคลื่นเสียง Equalizer 4 แท่ง (`.voice-sound-waves`) บนปุ่มสีแดง CRT Pulse และแบนเนอร์ด้านบน (`#pos-voice-banner`) สตรีมข้อความสดเรียลไทม์ขณะกำลังพูด
+    - ตรรกะตรวจจับคำระบุราคา เช่น *"โค้ก 20 บาท"* เพื่อเทียบเคียงหาสินค้าที่ตรงระดับราคา (เช่น โค้ก 590 มล. ราคา 19 บาท) โดยตั้งค่าเริ่มต้นเป็น 1 หน่วยทันที
+    - มีระบบขอสิทธิ์ไมค์ล่วงหน้า (`ensureMicPermission`) รองรับสภาพแวดล้อม PWA / HTTPS ได้อย่างลื่นไหล
+  - ช่องกรอกค้นหาชื่อสินค้า/ยิงบาร์โค้ดฮาร์ดแวร์ (`#pos-barcode-input`) พร้อมปุ่มล้างคำค้นหา และปุ่มเปิดกล้องสแกนบาร์โค้ด
+  - **แถบหมวดหมู่สินค้าและปุ่มลูกศรเพรียวบาง (Slim Category Arrows & 48px Tabs)**:
+    - เพิ่มความสูงแถบหมวดหมู่เป็น 48px เพื่อความสะดวกในการแตะสัมผัสบนแท็บเล็ต
+    - ปุ่มลูกศรเลื่อนซ้าย-ขวาความกว้าง 18px (`.slim-cat-arrow`) ไม่เบียดบังพื้นที่แสดงผล
+    - ตกแต่งสไตล์ Scrollbar ให้เข้ากับโทนสีเรโทรของแต่ละธีม
   - แถบเลื่อนเลือกหมวดหมู่สินค้าแนวนอน (`.pos-cat-tab`) พร้อมปุ่มตัวกรองพิเศษ `⚡ รายการด่วน (Quick Items)`
   - ตัวเลือกปรับจำนวนคอลัมน์การแสดงผลสินค้า (3, 4, 5, 6 คอลัมน์) ตามขนาดหน้าจอ
   - การ์ดสินค้าพิกเซล: แสดงรูปสินค้า (มีรูป Placeholder สำรอง), ชื่อสินค้าพร้อมตัดคำ 2 บรรทัด (ไม่ทับสระภาษาไทย), ป้ายราคาเด่นชัด, และ Badge สต็อกคงเหลือ (สีเขียว = มีสินค้า, สีแดง = สินค้าหมด/ติดลบ)
 - **Cart & Order Panel (ฝั่งขวา)**:
   - แสดงรายการสินค้าในตะกร้าแบบเรียลไทม์ พร้อมเส้นขอบคมชัดสไตล์เกม
-  - **แถวควบคุมจำนวนสินค้า (Redesigned Touch Controls)**:
-    - ปุ่ม `[-]` ปรับลดจำนวน (กว้าง 36-40px สัมผัสง่าย)
-    - **ปุ่มตัวเลขระบุจำนวน (Clickable Quantity Button)**: แตะเพื่อเปิดโมดัล On-Screen Retro LED Numpad สำหรับพิมพ์ตัวเลขจำนวนสินค้าโดยตรง
-    - ปุ่ม `[+]` ปรับเพิ่มจำนวน
-    - แสดงยอดรวมย่อย (Subtotal) ขนาดใหญ่ชัดเจน
-    - ปุ่มลบรายการ `[✕ ลบ]` ย้ายไปอยู่ขวาสุด ป้องกันการกดพลาด
+  - **การ์ดรายการสินค้าในตะกร้าสไตล์โมเดิร์นเรโทร (Modern Retro Arcade Cart Card)**:
+    - **รูปภาพ Thumbnail สินค้าชิดซ้ายสุดเต็มความสูง (Edge-to-Edge Flush Thumbnail)**: แสดงภาพสินค้าจริงจาก Google Drive / CDN พร้อมระบบ Fallback
+    - **ชื่อสินค้าและราคาต่อหน่วยแบบคลีน (Clean Currency Display)**: ตัดเลข `.00` ออกโดยอัตโนมัติหากสินค้าไม่มีเศษสตางค์ (เช่น `@10 / ขวด`, `฿10`) และแสดงทศนิยม 2 ตำแหน่งเฉพาะเมื่อมีเศษสตางค์จริง (เช่น `@10.50 / ขวด`)
+    - **ชุดปรับจำนวนลูกศรสามเหลี่ยมเรโทร (Arcade Stepper Controls)**:
+      - ปุ่มลูกศรแดง **`◀`** ปรับลดจำนวน
+      - กล่องตัวเลขกรอบประสีทอง **`[1]`**: แตะเพื่อเปิดโมดัล Quick Quantity Numpad ป้อนตัวเลขได้โดยตรง
+      - ปุ่มลูกศรเขียว **`▶`** ปรับเพิ่มจำนวน
+    - **ยอดรวมย่อย (Subtotal)**: แสดงตัวเลขฟอนต์พิกเซลสีเขียวเรโทรชัดเจน
+    - **แถบปุ่มลบสีแดงแนวตั้งประกบขวาสุดเต็มความสูง (Integrated Right End-Cap Delete Button `✕`)**: ดีไซน์กลืนกับตัวการ์ด ไม่ล้นขอบจอ (Zero Overflow) ปลอดภัยต่อการเลื่อนตะกร้าบน Android PWA
+    - **Zero-Padding Protection**: ป้องกัน Media Query Tablet/Mobile ฉีด Padding แทรกกลางการ์ด ทำให้รูปและปุ่มลบแนบสนิทกับขอบการ์ด 100% ในทุกขนาดหน้าจอ
   - ส่วนคำนวณเงินท้ายบิล: รวมเงิน (Subtotal), สวิตช์ส่วนลด (เลือกระบุเป็น `฿` บาท หรือ `%` เปอร์เซ็นต์ พร้อมแสดงผลคำนวณส่วนลดย่อย), ภาษีมูลค่าเพิ่ม (VAT), ยอดสุทธิ (Net Amount), และการวิเคราะห์กำไรเบื้องต้น
   - แถบปุ่มลัด: `🗑️ ล้างตะกร้า`, `⏸️ พักบิล / 📂 เรียกบิล`, `⚡ จ่ายเงินสดพอดี`, และ `💳 ชำระเงิน (Checkout)`
 - **โมดัลคีย์ตัวเลขด่วน (Quick Quantity Numpad Modal)**:
   - อยู่ภายใน `views/pos.html` (`#modal-quick-quantity`)
+  - ดีไซน์กะทัดรัด (Compact Zero-Scroll Architecture ความสูงรวม ~360px): รับประกันปุ่มยกเลิก `[Esc]` และยืนยัน `[Enter]` ไม่ตกขอบจอด้านล่างบนแท็บเล็ต 1024x640 แนวนอน
   - แสดงชื่อสินค้า, ราคาต่อหน่วย, และหน้าจอ LED Scanline สีเขียวแสดงจำนวนสินค้าที่พิมพ์
   - ปุ่มลัดตามแพ็ค/โหล: `+1 ชิ้น`, `6 (ครึ่งโหล)`, `12 (1 โหล)`, `24 (2 โหล)`
-  - แผงแป้นตัวเลข 0-9 พร้อมปุ่ม `C (ล้าง)` และ `⌫ (Backspace)`
+  - แผงแป้นตัวเลข 0-9 แบบ Slim Grid พร้อมปุ่ม `C (ล้าง)` และ `⌫ (Backspace)`
   - รองรับคีย์ลัดคีย์บอร์ด: `Enter` ยืนยัน, `Esc` ยกเลิก, และพิมพ์ตัวเลขจากแป้นพิมพ์คอมพิวเตอร์ได้ทันที
 
 ### 6.2 หน้าจอชำระเงิน (Payment & Checkout View) - `views/payment.html`
@@ -420,25 +440,31 @@ END $$;
 
 ## 7. ศูนย์รวมหน้าต่างป๊อปอัปและโมดัล (Modals Registry)
 
-หน้าต่างป๊อปอัปทั้งหมดของระบบถูกรวมศูนย์ไว้ใน `views/modals.html` ประกอบด้วย 14 โมดัลหลัก:
+หน้าต่างป๊อปอัปทั้งหมดของระบบถูกรวมศูนย์ไว้ใน `views/modals.html` (และโมดัลคีย์แพดใน `views/pos.html`) รวมทั้งสิ้น 20 โมดัล:
 
 | รหัสโมดัล (Modal ID) | ชื่อโมดัล / บทบาทหน้าที่ | รายละเอียดและการทำงานสำคัญ |
 | :--- | :--- | :--- |
 | `pos-hold-modal` | **รายการบิลที่พักไว้ (Hold Bills)** | แสดงรายการบิลที่ถูกพักไว้ พร้อมเวลาและยอดเงิน สามารถกดเรียกคืนกลับมาขายต่อ หรือลบทิ้ง |
 | `pos-success-modal` | **สำเร็จการขาย (Stage Clear)** | แสดงเมื่อชำระเงินสำเร็จ สรุปเลขที่บิล, ยอดเงิน, ช่องทางชำระ, เงินทอนขนาดใหญ่ และปุ่มลูกค้ารายต่อไป |
 | `barcode-not-found-modal` | **แจ้งเตือนไม่พบบาร์โค้ด / สแกนผิดพลาด** | แจ้งเตือนเมื่อยิงบาร์โค้ดไม่พบ หรือสแกนผิดพลาด/ไม่สมบูรณ์ มี 3 ทางเลือก: สแกนผิดพลาด/ยกเลิก `[N]`, Re-new Barcode `[R]`, หรือสร้างสินค้าใหม่ `[Y]` |
-| `prod-crud-modal` | **เพิ่ม/แก้ไขสินค้า (Product CRUD)** | ฟอร์มจัดการสินค้าเต็มรูปแบบ: อัปโหลดภาพ/ถ่ายรูป 900x900, สุ่มรหัสบาร์โค้ด, คำนวณ Margin %, สลับรายการด่วน |
+| `prod-crud-modal` | **เพิ่ม/แก้ไขสินค้า (Product CRUD)** | ฟอร์มจัดการสินค้าเต็มรูปแบบ: อัปโหลดภาพ/ถ่ายรูป 900x900, สุ่มรหัสบาร์โค้ด, คำนวณ Margin %, สลับรายการด่วน, เปิด/ปิดระบบตัดสต็อก |
 | `modal-barcode-match` | **จับคู่บาร์โค้ดใหม่ (Re-new Barcode)** | นำบาร์โค้ดที่เพิ่งยิง มาจับคู่ผูกเข้ากับสินค้าเดิมที่มีอยู่ในระบบได้อย่างรวดเร็ว |
-| `stock-adjust-modal` | **ปรับปรุงจำนวนสต็อกด่วน** | ปรับปรุงยอดสต็อกสินค้าทันที (รับเข้า, ของเสียหาย, นับสต็อก) พร้อมบันทึกลง `stock_movements` |
-| `camera-scanner-modal` | **กล้องสแกนบาร์โค้ด** | เปิดกล้องหลังเพื่อสแกนบาร์โค้ด 1D/2D ด้วยไลบรารี Html5-Qrcode |
-| `camera-photo-modal` | **กล้องถ่ายรูปสินค้า** | สตรีมวิดีโอจากกล้องเพื่อถ่ายภาพสินค้า จัดเฟรมสี่เหลี่ยมจัตุรัส แล้วส่งเข้า Image Pipeline |
 | `modal-quick-quantity` | **แป้นตัวเลขปรับจำนวนสินค้าด่วน** | อยู่ใน `views/pos.html` มีจอ LED Scanline, ปุ่มลัดแพ็ค/โหล (+1, 6, 12, 24) และคีย์แพด 0-9 |
-| `modal-stockin-confirm` | **ยืนยันการบันทึกสต็อก AI** | สรุปจำนวนรายการ, จำนวนชิ้นรวม, มูลค่าทุนรวม และปุ่มกดยืนยันขนาดใหญ่สำหรับจอสัมผัส |
+| `modal-stockin-product-picker` | **เลือกจับคู่สินค้าใน Stock-In** | ค้นหาและเลือกสินค้าเดิมในระบบเพื่อผูกกับรายการในใบเสร็จรับเงิน พร้อมตัวเลือกสแกนบาร์โค้ดผ่านกล้อง |
+| `modal-stockin-cat-unit` | **กำหนดหมวดหมู่และหน่วยนับ** | ป๊อปอัปเลือกหมวดหมู่และหน่วยนับสำหรับรายการสินค้าใหม่ใน Staging Table |
+| `modal-cost-diff-detail` | **แจ้งเตือนผลต่างราคาทุน (Cost Variance)** | แสดงการเปรียบเทียบระหว่างทุนเดิมในระบบ กับทุนใหม่จากใบเสร็จ เพื่อพิจารณาปรับราคาขายปลีก |
+| `modal-stockin-confirm-save` | **ยืนยันการบันทึกสต็อก AI** | สรุปจำนวนรายการ, จำนวนชิ้นรวม, มูลค่าทุนรวม และปุ่มกดยืนยันขนาดใหญ่สำหรับจอสัมผัส |
 | `modal-stockin-success` | **แจ้งผลบันทึกสต็อกสำเร็จ** | แสดงจำนวนรายการที่สำเร็จ และแสดงรายการที่ผิดพลาด (ถ้ามี) ก่อนปิดและส่งโฟกัสกลับช่องบาร์โค้ด |
-| `match-picker-modal` | **เลือกจับคู่สินค้าใน Stock-In** | ค้นหาและเลือกสินค้าเดิมในระบบเพื่อผูกกับรายการในใบเสร็จรับเงิน |
-| `cat-unit-modal` | **กำหนดหมวดหมู่และหน่วยนับ** | ป๊อปอัปเลือกหมวดหมู่และหน่วยนับสำหรับรายการสินค้าใหม่ใน Staging Table |
-| `cost-diff-modal` | **แจ้งเตือนผลต่างราคาทุน** | แสดงการเปรียบเทียบระหว่างทุนเดิมในระบบ กับทุนใหม่จากใบเสร็จ เพื่อพิจารณาปรับราคาขายปลีก |
-| `gdrive-guide-modal` | **คู่มือการติดตั้ง Google Apps Script** | ป๊อปอัปแสดงขั้นตอนการสร้าง Web App บน script.google.com สำหรับเก็บรูปภาพลง Google Drive |
+| `camera-scanner-modal` | **กล้องสแกนบาร์โค้ด (Camera Barcode)** | เปิดกล้องหลังเพื่อสแกนบาร์โค้ด 1D/2D ด้วยไลบรารี Html5-Qrcode |
+| `prod-camera-modal` | **กล้องถ่ายรูปสินค้า (Product Camera)** | สตรีมวิดีโอจากกล้องเพื่อถ่ายภาพสินค้า จัดเฟรมสี่เหลี่ยมจัตุรัส แล้วส่งเข้า Image Pipeline |
+| `order-detail-modal` | **รายละเอียดบิลขายย้อนหลัง** | แสดงรายการสินค้า, ช่องทางชำระ, ส่วนลด, VAT และมีปุ่มพิมพ์สลิปซ้ำ (Reprint) หรือยกเลิกบิล (Void Order) |
+| `cat-add-modal` | **เพิ่มหมวดหมู่ด่วน** | ป๊อปอัปขนาดกะทัดรัดสำหรับเพิ่มหมวดหมู่สินค้าใหม่อย่างรวดเร็วขณะทำงาน |
+| `category-form-modal` | **จัดการหมวดหมู่สินค้า** | ฟอร์มสร้าง/แก้ไขหมวดหมู่สินค้าและกำหนดลำดับการแสดงผล (`sort_order`) |
+| `prod-csv-modal` | **นำเข้าสินค้าผ่านไฟล์ CSV** | อัปโหลดไฟล์ CSV สินค้าเพื่อนำเข้าข้อมูลพร้อมกันเป็นชุด (Batch Import) |
+| `prod-export-modal` | **ส่งออกข้อมูลสินค้า (Export Products)** | ส่งออกแคตตาล็อกสินค้าในระบบเป็นไฟล์ CSV หรือรายงานสรุป |
+| `prod-rls-guide-modal` | **คู่มือการตั้งค่า Supabase RLS** | แนะนำคำสั่ง SQL และการกำหนดนโยบาย Row Level Security บน Supabase |
+| `gdrive-guide-modal` | **คู่มือการติดตั้ง Google Apps Script** | แสดงขั้นตอนการสร้าง Web App บน script.google.com สำหรับเก็บรูปภาพลง Google Drive |
+| `modal-ios-pwa-guide` | **คู่มือการติดตั้ง PWA บน iOS/iPadOS** | แนะนำวิธีเพิ่มเว็บแอปลงในหน้าจอโฮม (Add to Home Screen) บน Safari |
 
 ---
 
@@ -451,6 +477,10 @@ END $$;
 
 ### 8.1 `js/modules/pos.js` (`PosModule`)
 - **Lifecycle Implementation**: รองรับ `async init()` (โหลดสินค้า/หมวดหมู่, ผูกคีย์ลัด Numpad, ดักฟัง `products:changed` และ `categories:changed`) และ `destroy()` (ถอดถอนคีย์บอร์ดลิสเนอร์และ Event Bus เมื่อสลับหน้า)
+- **High-Performance In-Memory Lookups ($O(1)$)**: มีดัชนีคู่ `_productById` และ `_productByBarcode` (Hash Maps) ดึงข้อมูลสินค้าทันที < 0.05ms เมื่อคลิกการ์ดสินค้า (`addToCartById`), วาดรายการตะกร้า (`updateCartUI`), หรือยิงบาร์โค้ด (`handleBarcodeScan`)
+- **Single-Pass Category Aggregation ($O(N)$)**: ปรับปรุง `renderCategories()` นับจำนวนสินค้าและยอดขายดีในลูปเดียว ขจัดปัญหา CPU Spikes และความหน่วงจากการสลับหมวดหมู่
+- **Pre-computed Sales Stats & Persistent Thai Collator**: เรียงลำดับสินค้าขายดีเร็วขึ้น 4–8 เท่าด้วย `thaiCollator = new Intl.Collator('th')` และการแนบสถิติยอดขายล่วงหน้า
+- **Ultra-Fast Modal Check**: ใช้ `ALL_MODAL_SELECTORS` รวบการค้นหา DOM ใน `isAnyModalOpen()` ช่วยให้ปืนสแกนเนอร์ส่งข้อมูลได้ต่อเนื่อง ไร้อาการตกหล่น
 - จัดการ State ของตะกร้าสินค้า (`this.cart`)
 - การคำนวณเงินสด: เมธอด `getTotals()` คืนค่า `subtotal`, `discount`, `netAmount`, `totalCost`, `profit`
 - เมธอด `updateQuantity(productId, delta)`: ปรับเพิ่ม/ลดจำนวนสินค้า
@@ -491,7 +521,8 @@ END $$;
   4. อัปเดตแคชใน Dexie และกระจายสัญญาณผ่าน `appBus`
 
 ### 8.5 `js/modules/stock-in.js` (`StockInModule`)
-- **Lifecycle Implementation**: รองรับ `async init()` (โหลดแคตตาล็อกสินค้าสำหรับ Auto-match, ผูก Event คอนโทรล Staging) และ `destroy()` (เคลียร์ Disposables และ Staging Elements)
+- **Lifecycle & Event Guard Implementation**: รองรับ `async init()` (โหลดแคตตาล็อกสินค้าสำหรับ Auto-match, ผูก Event คอนโทรล Staging) และ `destroy()` (เคลียร์ Disposables และ Staging Elements) แยก `bindDOMEvents()` พร้อมการ์ด `_domEventsBound` ป้องกัน Event Listener สะสมซ้อนทับ และแยก `bindLifecycleEvents()` ลงใน `this.disposables` ตามกฎข้อที่ 9, 11 & 12
+- **In-Memory Product Matching Map**: มี `_productMap = new Map()` ช่วยจับคู่สินค้าเดิมในตารางรับเข้าสต็อกระดับ sub-millisecond ขจัดปัญหา $O(M \times N)$ สแกนซ้ำซ้อน
 - ประมวลผลภาพถ่ายใบเสร็จผ่าน `geminiApi.js` แล้วนำข้อมูลเข้าสู่ Staging
 - **รองรับ 2 มุมมอง (Dual View)**: `renderCards()` สำหรับแท็บเล็ตจอสัมผัส และ `renderTable()` สำหรับจอกว้าง
 - ฟังก์ชัน `addManualItem()`: เพิ่มรายการสินค้าเข้า Staging ด้วยตนเอง
@@ -519,9 +550,11 @@ END $$;
 
 | ไฟล์ (File Path) | บทบาทและฟังก์ชันการทำงานหลัก |
 | :--- | :--- |
-| `js/utils/dbHelper.js` | **Resilient Database Layer & Scoped Event Bus**: ฟังก์ชัน `resilientUpdate()`, `resilientInsert()`, `resilientDelete()` รองรับการสลับยิงผ่าน Public Anon Client อัตโนมัติเมื่อ Session หลุดหรือติด RLS, ตรวจจับและตัดฟิลด์ที่ไม่มีในสกีมาทิ้งแล้ว Retry ทันที, รองรับลำดับอาร์กิวเมนต์แบบยืดหยุ่น และมี `appBus.on()` ที่คืนฟังก์ชัน Unsubscribe สำหรับเก็บใน `this.disposables` เพื่อป้องกัน Memory Leak เมื่อโมดูลถูกทำลาย |
-| `js/utils/barcodeHelper.js` | **Thai Barcode Layout Fixer**: ฟังก์ชัน `normalizeThaiBarcode()` แปลงอักขระภาษาไทย (เช่น `ขชๆพะ` หรือตัวเลขไทย) กลับเป็นตัวเลขอารบิก `0-9` และอักษรภาษาอังกฤษ `a-z` ทันทีเมื่อผู้ใช้ลืมสลับภาษาของแป้นพิมพ์ขณะยิงบาร์โค้ด |
-| `js/utils/audio.js` | **Chiptune Audio Synthesizer**: สังเคราะห์เสียง 8-bit ด้วย Web Audio API เช่น `beep`, `hit`, `coin`, `powerup`, `laser`, `jump`, `error`, `stage_clear` พร้อมระบบจำสถานะเปิด/ปิดเสียง Mute ใน LocalStorage (`toggleAudioMute()`, `isAudioMuted()`) |
+| `js/utils/dbHelper.js` | **Resilient Database Layer & Scoped Event Bus**: ฟังก์ชัน `resilientUpdate()`, `resilientInsert()`, `resilientDelete()` รองรับการสลับยิงผ่าน Public Anon Client อัตโนมัติเมื่อ Session หลุดหรือติด RLS, ตรวจจับและตัดฟิลด์ที่ไม่มีในสกีมาทิ้งแบบ Recursive ด้วย `while` loop แล้ว Retry ทันที, รองรับลำดับอาร์กิวเมนต์แบบยืดหยุ่น และมี `appBus.on()` ที่คืนฟังก์ชัน Unsubscribe สำหรับเก็บใน `this.disposables` เพื่อป้องกัน Memory Leak เมื่อโมดูลถูกทำลาย |
+| `js/utils/barcodeHelper.js` | **Thai Barcode Layout Fixer**: ฟังก์ชัน `normalizeThaiBarcode()` และ `getCharFromPhysicalEvent()` แปลงบาร์โค้ดจากปืนสแกนเนอร์ภาษาไทย (ผังปัตตโชติบน Alldocube OS) กลับเป็นเลขอารบิก `0-9` ด้วยการแปลงตรง 1-to-1 (`THAI_PATTACHOTE_REF_MAP`) แก้ปัญหาเครื่องสแกนพ่น `=` แทนเลข `1` และ `ู` แทนเลข `6` รวดเร็ว แม่นยำ และไม่ใช้เงื่อนไขซับซ้อน |
+| `js/utils/audio.js` | **Chiptune Audio Synthesizer**: สังเคราะห์เสียง 8-bit ด้วย Web Audio API เช่น `beep`, `hit`, `coin`, `powerup`, `laser`, `jump`, `error`, `stage_clear`, `plus`, `minus`, `select` พร้อมระบบปรับระดับเสียง (Master Volume Bus & Dynamics Compressor) และจำสถานะเปิด/ปิดเสียง Mute ใน LocalStorage (`toggleAudioMute()`, `isAudioMuted()`) |
+| `js/utils/themeHelper.js` | **Dual-Theme Manager**: จัดการสลับธีมคู่ขนานระหว่าง **`warm-arcade`** (คลาสสิกเรโทร สีครีม-ทอง-ดำ) และ **`cyber-emerald`** (นีออนไซเบอร์ ดำ-เขียวมรกต คอนทราสต์สูง) จัดเก็บการตั้งค่าลง LocalStorage ซิงค์สีแถบเบราว์เซอร์ผ่าน `<meta name="theme-color">` และกระจายเหตุการณ์ `theme:changed` เข้าสู่ Event Bus |
+| `js/utils/uiHelper.js` | **Retro Micro-Loader Overlay**: ยูทิลิตี้แสดงผลหน้าจอโหลดขนาดเล็กแบบ Hardware-Accelerated สไตล์เรโทร (`showLoader()`, `hideLoader()`, `withLoader()`) ป้องกันการกดซ้ำซ้อน และเคลียร์สถานะปลอดภัยใน `finally` block เสมอ |
 | `js/utils/geminiApi.js` | **Gemini Vision Integration**: เชื่อมต่อ Gemini API พร้อมระบบ **Multi-Model Failover Pool** (`gemini-2.5-flash` ➔ `gemini-2.0-flash` ➔ `gemini-1.5-flash`), ควบคุม Timeout ด้วย `AbortController` (15s สำหรับทดสอบ, 45s สำหรับสแกนบิล), และถอด Markdown Code Fences อัตโนมัติ |
 | `js/utils/promptpay.js` | **PromptPay EMVCo QR Generator**: สร้าง String ตามมาตรฐาน EMVCo รองรับเบอร์โทรศัพท์ 10 หลัก และเลขผู้เสียภาษี 13 หลัก พร้อมคำนวณค่า Checksum ตามอัลกอริทึม **CRC16-CCITT (0xFFFF)** อย่างถูกต้อง |
 | `js/utils/thermal-printer.js` | **Thermal Print Formatter**: จัดหน้าสลิปใบเสร็จรับเงินสำหรับกระดาษความร้อน 58 มม. และ 80 มม. มีข้อมูลหัวบิล, ตารางรายการสินค้า, ส่วนลด, VAT, ยอดสุทธิ, เงินสด, เงินทอน, และบาร์โค้ดท้ายบิล |
@@ -638,14 +671,25 @@ END $$;
 - **การจำลองแป้นพิมพ์ของปืนสแกน (Keyboard Wedge) & In-Memory Capture**:
   - ปืนยิงบาร์โค้ด USB/Bluetooth จะส่งข้อมูลเสมือนการพิมพ์แป้นพิมพ์อย่างรวดเร็วและปิดท้ายด้วยปุ่ม `Enter`
   - ดักจับเหตุการณ์ในระดับ **Capture Phase (`keydown`)** โดยสกัดตัวเลขจาก Physical Key Codes (`Digit0-9`, `Numpad0-9`) โดยตรง ไม่ขึ้นกับภาษาแป้นพิมพ์ของ OS
-  - สั่ง `e.preventDefault()` บนช่อง `#pos-barcode-input` เพื่อป้องกัน DOM Repaint Lag และไม่ให้อักขระภาษาไทยหลุดเข้าไปในช่องกรอก
-- **การแก้ปัญหา Bluetooth Reconnection Jitter (Adaptive Cadence Dual-Threshold)**:
-  - หัวอ่านไร้สาย Bluetooth เมื่ออยู่ในโหมดประหยัดพลังงาน (Standby) หลังไม่ได้ใช้งาน เมื่อหยิบขึ้นมายิงบาร์โค้ด 1–3 ตัวแรกจะมี Handshake Latency Spike (80–150ms)
-  - ระบบใช้เกณฑ์ความเร็วแบบปรับตัวได้ (Adaptive Cadence):
-    - `CADENCE_WAKEUP = 180ms`: ขยาย Grace Period ให้ 1–3 ตัวแรก เพื่อรองรับ Latency Spike จากการเชื่อมต่อบลูทูธ ป้องกันตัวเลขนำหน้าตกหล่น
-    - `CADENCE_FAST = 55ms`: เมื่อผ่าน 3 ตัวแรก จะปรับสู่ความเร็วระดับฮาร์ดแวร์ และตัดการพิมพ์ด้วยมือของมนุษย์ (> 200ms) ทิ้งทันที
-- **การแก้ปัญหาแป้นพิมพ์ภาษาไทย (Thai Barcode Auto-Correction Fallback)**:
-  - หากสแกนผ่านซอฟต์แวร์อื่น หรือพิมพ์/วาง (Paste) ลงในช่องกรอก ฟังก์ชัน `normalizeThaiBarcode()` ใน `js/utils/barcodeHelper.js` จะแปลงตัวอักษรภาษาไทยทั้งหมด (เช่น `คคถจๅ/-ภถุึคต`) กลับเป็นตัวเลขอารบิก `0-9` อย่างถูกต้อง
+  - สั่ง `e.preventDefault()` ทันทีเมื่อโฟกัสอยู่ที่ช่อง `#pos-barcode-input` เพื่อป้องกันไม่ให้อักขระไทยของ Alldocube OS (ปัตตโชติ) หรือเกษมณีหลุดเข้าไปใน DOM แล้วนำค่าจาก Buffer อัปเดตลง `.value` โดยตรง ป้องกัน DOM Repaint Lag ได้ 100%
+- **การแก้ปัญหา Bluetooth Standby & Low Transfer Rate Mode (Adaptive Cadence Dual-Threshold)**:
+  - หัวอ่านไร้สาย Bluetooth เมื่อหลับ (Standby) หลังไม่ได้ใช้งาน เมื่อหยิบขึ้นมายิงบาร์โค้ด 1–3 ตัวแรกจะมี Latency Spike (80–150ms)
+  - นอกจากนี้ สแกนเนอร์ที่ตั้งค่าเป็น Low Transfer Rate หรือการยิงบาร์โค้ดยาว 12–14+ หลัก ต้องการช่วง Cadence ที่กว้างขึ้นเพื่อป้องกันบัฟเฟอร์หลุดทิ้งกลางคัน
+  - ระบบใช้เกณฑ์ความเร็วแบบปรับตัวได้ (Adaptive Cadence Dual-Threshold):
+    - `CADENCE_WAKEUP = 200ms` (180ms – 220ms): ขยาย Grace Period ให้ 1–3 ตัวแรก เพื่อรองรับ Latency Spike จากการเชื่อมต่อบลูทูธ ป้องกันตัวเลขนำหน้าตกหล่น
+    - `CADENCE_FAST = 120ms` (100ms – 120ms): ปรับสู่ความเร็วระดับฮาร์ดแวร์สำหรับตัวถัดไป รองรับโหมด Low Rate และตัดการพิมพ์ด้วยมือของมนุษย์ (> 250ms) ทิ้งอย่างเด็ดขาด
+- **การประมวลผล Enter Handling ที่แม่นยำ**:
+  - เมื่อพบ `Enter` และความยาว Buffer $\ge 8$ หลัก จะส่งเข้า `handleBarcodeScan(scannedCode)` ทันที
+  - หากพบ `Enter` แต่ Buffer มีความยาว $< 8$ หลัก ระบบจะล้างบัฟเฟอร์ทิ้งทันที เพื่อป้องกันข้อมูลไม่สมบูรณ์ค้างในหน่วยความจำ
+- **การแก้ปัญหาแป้นพิมพ์ภาษาไทย (Thai Barcode Direct Ref Mapping & Physical Keys)**:
+  - ใช้ 2 เงื่อนไขหลักอย่างเรียบง่ายและเด็ดขาด ไม่ใช้เงื่อนไขซับซ้อน:
+    1. **Physical Key Codes**: ดักจับจาก `e.code` (`Digit0-9`, `Numpad0-9`, `Equal` ➔ `'1'`) หรือ fallback `e.key` เพื่อตัดปัญหาภาษาแป้นพิมพ์ของระบบปฏิบัติการ
+    2. **Thai Pattachote-ENG Reference Mapping**: แปลงอักขระตรง 1-to-1 จากข้อมูลจริงของเครื่องอ่านบาร์โค้ด (`THAI_PATTACHOTE_REF_MAP`):
+       - `=` ➔ `1` (แก้ไขปัญหาเครื่องสแกนพ่น `=` ออกมาแทนเลข 1 บน Android/Alldocube OS เช่น `558=883=000020` ➔ `55818831000020`)
+       - `ู` ➔ `6` (แถว Shift+6 ผังปัตตโชติ)
+       - `๐-๙` ➔ `0-9` (ตัวเลขไทย)
+       - พร้อม Fallback ปัตตโชติ unshifted และเกษมณี
+  - หากสแกนผ่านซอฟต์แวร์อื่น หรือพิมพ์/วาง (Paste) ลงในช่องกรอกหรือช่องค้นหาสินค้า ฟังก์ชัน `normalizeThaiBarcode()` ใน `js/utils/barcodeHelper.js` จะแทนที่อักขระตาม Ref Map ทันทีโดยไม่ต้องประเมิน Signature Score ที่ซับซ้อน
 - **ป๊อปอัปจัดการบาร์โค้ดไม่พบ / สแกนผิดพลาด (`barcode-not-found-modal`)**:
   - **ตรวจจับบาร์โค้ดสั้นผิดปกติ**: หากบาร์โค้ดมีความยาว $< 8$ หลัก ระบบจะแสดงแถบเตือนสีแดงพร้อมข้อความระบุว่าอาจเกิดจากสัญญาณ Bluetooth สะดุด เพื่อให้แคชเชียร์รู้ทันที
   - **ปุ่ม `❌ สแกนผิดพลาด / ยกเลิก [N]` (หรือกด `Esc`)**: ระบบจะรับรู้ว่าเป็นการสแกนที่ผิดพลาด ล้าง Buffer ตกค้างทั้งหมด และคืนโฟกัสกลับไปที่ช่องยิงบาร์โค้ดทันทีตามกฎข้อที่ 1
@@ -716,7 +760,7 @@ END $$;
   - `resilientUpdate(supabase, table, id, payload)`
   - `resilientInsert(supabase, table, payload)`
   - `resilientDelete(supabase, table, id)`
-- ตัวช่วยเหล่านี้จะสลับไปยิงผ่าน `window.publicSupabase` (Anon Client) อัตโนมัติหากติด RLS หรือ Session หลุด และตรวจจับคอลัมน์ที่ไม่ตรงกับสกีมา (`PGRST204`) เพื่อตัดทิ้งแล้ว Retry ทันที
+- ตัวช่วยเหล่านี้จะสลับไปยิงผ่าน `window.publicSupabase` (Anon Client) อัตโนมัติหากติด RLS หรือ Session หลุด และตรวจจับคอลัมน์ที่ไม่ตรงกับสกีมา (`PGRST204`) ด้วย `while` loop เพื่อตัดทิ้งแล้ว Retry ทันทีจนกว่าจะสำเร็จ (รองรับกรณีมีคอลัมน์เกินหลายตัวพร้อมกัน)
 
 ### 📌 กฎข้อที่ 3: กฎลำดับพารามิเตอร์และการเปรียบเทียบ ID (Parameter & ID Safety Rule)
 1. **ลำดับพารามิเตอร์ของ `resilientUpdate`:**
@@ -731,9 +775,9 @@ END $$;
    - สกัดตัวเลขจาก `e.code.startsWith('Digit')` และ `e.code.startsWith('Numpad')` ไม่ให้อิงกับภาษาแป้นพิมพ์ของระบบปฏิบัติการ
    - เมื่อโฟกัสอยู่ที่ `#pos-barcode-input` ให้สั่ง `e.preventDefault()` ป้องกัน DOM Repaint Lag และอักขระไทยหลุดเข้า DOM
 2. **ระบบความเร็วปรับตัวได้ (Adaptive Cadence Dual-Threshold):**
-   - ใช้ `CADENCE_WAKEUP = 180ms` สำหรับ 1-3 ตัวแรกช่วงหัวอ่าน Bluetooth ตื่นจากโหมด Standby และ `CADENCE_FAST = 55ms` สำหรับตัวถัดไป เพื่อป้องกันเลขตัวหน้านำหลุดหาย
-3. **Fallback Thai Normalization:**
-   - ทุกจุดที่รับ Input บาร์โค้ดแบบ Manual หรือ Paste ต้องผ่าน `normalizeThaiBarcode(rawInput)` เสมอ
+   - ใช้ `CADENCE_WAKEUP = 200ms` (180ms – 220ms) สำหรับ 1-3 ตัวแรกช่วงหัวอ่าน Bluetooth ตื่นจากโหมด Standby และ `CADENCE_FAST = 120ms` (100ms – 120ms) สำหรับตัวถัดไป เพื่อรองรับโหมด Low Rate และป้องกันบัฟเฟอร์หลุดเมื่อยิงบาร์โค้ดยาว 12–14 หลัก
+3. **Fallback Thai Normalization (Dual-Layout):**
+   - ทุกจุดที่รับ Input บาร์โค้ดแบบ Manual หรือ Paste รวมถึงช่องค้นหาสินค้า ต้องผ่าน `normalizeThaiBarcode(rawInput)` ซึ่งรองรับทั้งผังปัตตโชติ (Alldocube OS) และผังเกษมณีเสมอ
 
 ### 📌 กฎข้อที่ 5: กฎการคืนสถานะปุ่มก่อนแสดง Dialog (Non-Blocking UI Before Alert Rule)
 - คำสั่ง `alert()` หรือ `confirm()` ของเบราว์เซอร์เป็น Synchronous Blocking Call ที่จะหยุดการทำงานของ JavaScript ทันที
@@ -748,12 +792,10 @@ END $$;
   note: `รับเข้า ${inQty} ชิ้น จาก ${supplier} [เลขที่เอกสาร: ${invoiceNo}]`
   ```
 
-### 📌 กฎข้อที่ 7: กฎการออกแบบหน้าจอ Zero-Scroll สำหรับแท็บเล็ต (Tablet 1024x640 Landscape Reference)
-- หน้าจอแท็บเล็ตที่ใช้งานจริงมีขนาด `1024 x 640 px` แนวนอน เหลือพื้นที่แสดงผลจริงแนวตั้งประมาณ **540px**
-- **ข้อบังคับ Zero-Scroll:**
-  1. หน้าสรุปบิลและชำระเงิน (`views/payment.html`) ต้องแสดงผลครบถ้วนในหน้าจอเดียว **ห้ามมี Outer Scrollbar**
-  2. ปุ่ม **"รับเงินสดพอดี & ตัดสต็อก [Enter]"** จะต้องปรากฏอยู่บนจอเสมอ 100% โดยที่แคชเชียร์ไม่ต้องเลื่อนจอลงไปกด
-  3. อนุญาตให้เกิด Scrollbar เฉพาะภายในกล่องรายการสินค้า (`#modal-receipt-items`) เท่านั้นเมื่อมีสินค้าจำนวนมากเกินความสูง
+### 📌 กฎข้อที่ 7: กฎการออกแบบและปรับแต่ง Layout หน้าขาย POS & Payment ยืดหยุ่นเพื่อ UX/UI (Flexible POS & Payment Layout Mandate)
+- **การปรับเปลี่ยน Layout เพื่อ UX/UI:** โครงสร้าง Layout หน้า POS และ Payment รองรับการปรับเปลี่ยนได้อย่างยืดหยุ่นเมื่อต้องการยกระดับ UX/UI หรือรองรับฟีเจอร์ใหม่
+- **Touch-Friendly & Usability:** สามารถปรับเพิ่มความสูง ขนาดปุ่มสัมผัส (เช่น แถบหมวดหมู่สินค้า `#pos-category-tabs-container` เพิ่มความสูง 80% ให้กดง่ายขึ้น) และจัดแต่งสไตล์ Scrollbar ให้กลมกลืนกับ Theme
+- **Fast Checkout Focus:** คงความสะดวกรวดเร็วในการปิดบิล และการเข้าถึงปุ่มสำคัญได้อย่างแม่นยำ
 
 ### 📌 กฎข้อที่ 8: กฎระบบแป้นตัวเลขรวมศูนย์ (Unified On-Screen Numpad & Zero-Replace Protection)
 - **การสลับเป้าหมาย (Active Target Routing):** แผง Numpad ในหน้าชำระเงินรองรับทั้งการกรอกเงินสด (`cash`) และส่วนลด (`discount`)
@@ -761,10 +803,7 @@ END $$;
 - **การบล็อกคีย์บอร์ดเสมือนของระบบ (Soft-Keyboard Suppression):** ช่องกรอกที่ใช้ปืนสแกนหรือ Numpad ของแอป ต้องใส่ `inputmode="none"` เสมอ เพื่อป้องกัน Virtual Keyboard ของ Android เด้งขึ้นมาบดบังหน้าจอ
 
 ### 📌 กฎข้อที่ 9: กฎการป้องกันเบราว์เซอร์แคชและวงจรชีวิตโมดูล (Centralized Cache Invalidation & Module Lifecycle Mandate)
-- **ข้อบังคับการปรับเวอร์ชัน (Cache Invalidation):** ทุกครั้งที่มีการแก้ไขไฟล์หรือ Release ระบบ (`views/*.html`, `js/modules/*.js`, `js/utils/*.js`, `css/*.css`):
-  1. อัปเดตค่า `APP_VERSION` ใน `js/config.js` (เช่น `export const APP_VERSION = '1.2.091826';`) ซึ่ง `viewLoader.js` จะดึงไปแนบท้าย query parameter ของวิวทุกไฟล์ (`?v=${APP_VERSION}`) อัตโนมัติ
-  2. อัปเดต `CACHE_NAME` ใน `sw.js` เพื่อให้ Service Worker เคลียร์และแคชไฟล์ใหม่
-  3. อัปเดต query parameter ท้ายไฟล์ใน `index.html` หากมีการแก้ไขสคริปต์หลัก
+- **ข้อบังคับการปรับเวอร์ชัน (Cache Invalidation):** ห้ามแก้ไขเลขเวอร์ชันใน `js/config.js` หรือ `sw.js` ด้วยมือโดยเด็ดขาด ทุกครั้งที่มีการแก้ไขไฟล์ HTML, CSS, หรือ JS แม้เพียงตัวอักษรเดียว **ต้องรันคำสั่ง `npm run bump` ผ่าน Terminal ทุกครั้ง** (สคริปต์จะทำการอัปเดตทั้ง `APP_VERSION` ใน `js/config.js` และ `CACHE_NAME` ใน `sw.js` ให้ตรงกันแบบ Atomic เพื่อทำลาย Cache เก่าอย่างสมบูรณ์แบบ)
 - **ข้อบังคับวงจรชีวิตโมดูล (Lifecycle & Disposables):**
   - ทุกโมดูลหน้าจอต้องมี `this.disposables = []`, เมธอด `async init()`, และเมธอด `destroy()`
   - ทุกการดักฟัง `appBus.on(...)` หรือ DOM Events ต้องเก็บฟังก์ชัน Unsubscribe ลงใน `this.disposables` เสมอ และต้องสลับหน้าผ่าน `setActiveModule()` เพื่อสั่งทำลายโมดูลเดิม ป้องกันการรั่วไหลของหน่วยความจำ (Memory Leak) บนแท็บเล็ตแคชเชียร์
@@ -772,6 +811,13 @@ END $$;
 ### 📌 กฎข้อที่ 10: กฎความปลอดภัยและการจัดการข้อมูลความลับ (Strict No-Secret Exposing Rule)
 - **ห้าม** ใส่ข้อมูลความลับ เช่น API Keys (เช่น Gemini API Key), Database Password, Supabase Service Role Key, หรือ Token ลงในซอร์สโค้ดฝั่ง Client (`index.html`, `js/*`) หรือเอกสาร Markdown (`AGENTS.md`, `README.md`) เด็ดขาด
 - การตั้งค่า Gemini API Key, Google Apps Script Web App URL หรือบัญชี PromptPay จะต้องถูกบันทึกลงในตาราง `app_settings` บน Supabase / IndexedDB ผ่านหน้าจอตั้งค่าระบบ (`views/settings.html`) พร้อมการทำ Security Masking เสมอ
+
+### 📌 กฎข้อที่ 11: กฎการป้องกันการประกาศเมธอดซ้ำซ้อนและการแยกการผูก Event (Method Overwrite Prevention & Static DOM Event Guard Rule)
+1. **ห้ามมีเมธอดชื่อซ้ำในคลาสเดียวกันเด็ดขาด (Strict Single Method Declaration):**
+   - ก่อนบันทึกไฟล์หรือ refactor โค้ด ต้องตรวจสอบว่าไม่มีการประกาศเมธอดเดิมซ้ำสองจุด ซึ่งจะทำให้ Prototype เมธอดหลังเขียนทับเมธอดแรกเงียบๆ
+2. **การแยกประเภท Event ระหว่าง Static DOM และ Dynamic Lifecycle (Dual-Tier Event Binding):**
+   - **Static DOM Events:** ปุ่มกด, ฟอร์ม submit, input ที่อยู่ใน HTML ของวิว ให้แยกไว้ในเมธอด `bindDOMEvents()` และครอบด้วยตัวแปรป้องกัน `if (this._domEventsBound) return; this._domEventsBound = true;` ผูกเพียงครั้งเดียวตลอดอายุแอป
+   - **Lifecycle Events:** การดักฟัง `appBus.on(...)` หรือ `window.addEventListener('keydown', ...)` ให้แยกไว้ใน `bindLifecycleEvents()` และต้องเก็บฟังก์ชัน Unsubscribe ลงใน `this.disposables` เสมอ เพื่อให้เมธอด `destroy()` ปลดออกได้อย่างสะอาดหมดจดเมื่อสลับไปหน้าอื่น
 
 ---
 
@@ -813,6 +859,16 @@ npm run build:css
 - เปิดเว็บเบราว์เซอร์บนมือถือหรือคอมพิวเตอร์ไปยัง URL ของระบบ
 - กดปุ่ม **"ติดตั้งแอป (Install App)"** ที่แถบ Header หรือผ่านเมนูของเบราว์เซอร์
 - แอปจะถูกติดตั้งเป็น Standalone Application ใช้งานได้เสมือนโปรแกรม Desktop หรือ Mobile App เต็มรูปแบบ
+
+### 5. การปรับเวอร์ชันและทำลายแคชอัตโนมัติ (Version Bump & Cache Busting)
+เมื่อมีการแก้ไขไฟล์โค้ดของระบบ ต้องรันคำสั่ง bump เวอร์ชันเพื่อให้อัปเดตทั้ง `APP_VERSION` ใน `js/config.js` และ `CACHE_NAME` ใน `sw.js` พร้อมกันแบบ Atomic:
+```bash
+# อัปเดตเลขเวอร์ชันตามเวลาปัจจุบันอัตโนมัติ (เช่น v1.2.091918)
+npm run bump
+
+# หรือระบุเลขเวอร์ชันที่ต้องการเจาะจง:
+npm run bump -- 1.2.091918
+```
 
 ---
 
