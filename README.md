@@ -1,3 +1,11 @@
+# [👤 Human System Encyclopedia & Setup Guide | ห้าม AI โหลดตอนเริ่มแชทใหม่]
+
+> ⚠️ **คำสั่งสำคัญสำหรับ AI Agents (Strict AI Cold-Start Prohibition):**  
+> **ห้ามอ่านไฟล์นี้ทั้งหมดเมื่อเริ่มต้นเซสชันใหม่** เพื่อประหยัด Token โควตาบริบท ให้อ่านเฉพาะ [`.agents/WRAPUP.md`](file:///e:/xampp/htdocs/myproject/about_pos/.agents/WRAPUP.md) (ลำดับที่ 1) และ [`AGENTS.md`](file:///e:/xampp/htdocs/myproject/about_pos/AGENTS.md) (ลำดับที่ 2) เท่านั้น  
+> *(อนุญาตให้ AI ใช้เครื่องมือค้นหาเฉพาะหัวข้อใน `README.md` เมื่อต้องแก้ไขส่วนที่เกี่ยวข้องกับเอกสารคู่มือโดยตรงเท่านั้น)*
+
+---
+
 # 🕹️ Pixel POS & AI Inventory (Retro Arcade Point of Sale)
 
 > **ระบบบริหารงานขายหน้าร้านและจัดการคลังสินค้าอัจฉริยะ (Retro Arcade Style POS & AI Stock-In Terminal)**  
@@ -20,8 +28,9 @@
 12. [ระบบเชื่อมต่อภาพ Google Drive ผ่าน Google Apps Script (GAS)](#12-ระบบเชื่อมต่อภาพ-google-drive-ผ่าน-google-apps-script-gas)
 13. [ระบบคีย์บอร์ดและฮาร์ดแวร์สแกนบาร์โค้ด (Barcode Hardware & Thai Fix)](#13-ระบบคีย์บอร์ดและฮาร์ดแวร์สแกนบาร์โค้ด-barcode-hardware--thai-fix)
 14. [การปรับปรุงความเสถียร รองรับแท็บเล็ตและจอสัมผัส (Touch & Tablet Hardening)](#14-การปรับปรุงความเสถียร-รองรับแท็บเล็ตและจอสัมผัส-touch--tablet-hardening)
-15. [กฎและข้อบังคับสำคัญสำหรับผู้พัฒนาและ AI (Critical Rules & Directives)](#15-กฎและข้อบังคับสำคัญสำหรับผู้พัฒนาและ-ai-critical-rules--directives)
-16. [คู่มือการติดตั้งและการรันระบบ (Setup & Deployment Guide)](#16-คู่มือการติดตั้งและการรันระบบ-setup--deployment-guide)
+15. [ระบบเสียงพูดแจ้งเตือนและคิดเงินภาษาไทย (Thai Voice Checkout Announcement)](#15-ระบบเสียงพูดแจ้งเตือนและคิดเงินภาษาไทย-thai-voice-checkout-announcement)
+16. [สรุปกฎและข้อบังคับสำคัญของระบบ (Critical System Directives Summary)](#16-กฎและข้อบังคับสำคัญสำหรับผู้พัฒนาและ-ai-critical-rules--directives)
+17. [คู่มือการติดตั้งและการรันระบบ (Setup & Deployment Guide)](#17-คู่มือการติดตั้งและการรันระบบ-setup--deployment-guide)
 
 ---
 
@@ -54,10 +63,17 @@ Pixel POS & AI Inventory ได้รับการออกแบบภาย�
 | **PromptPay Payment QR** | **Native JavaScript EMVCo QR Generator** | สร้าง Dynamic PromptPay QR Code ตามมาตรฐาน EMVCo พร้อมคำนวณ Checksum CRC16-CCITT อัตโนมัติ |
 | **Receipt Printing** | **Thermal Print Engine (ESC/POS CSS)** | จัดรูปแบบสลิปใบเสร็จมาตรฐานกระดาษความร้อน 58 มม. และ 80 มม. พิมพ์ผ่านเบราว์เซอร์หรือเครื่องพิมพ์บลูทูธ/USB |
 | **Audio Synthesizer** | **Web Audio API Chiptune Engine** | สังเคราะห์เสียง 8-bit แบบเรียลไทม์ (Beep, Coin, Hit, Laser, Powerup, Jump, Error) ไม่ต้องใช้ไฟล์ `.mp3` |
+| **Thai Voice Announcement** | **Web Audio API + Pristine Gemini TTS** | ระบบเสียงประกาศยอดเงินและเงินทอนภาษาไทย 25 แทร็ก (Voice: Aoede) รองรับตัวเลขหลักหน่วยถึงหลักแสน ตัดเสียงซ่าท้ายคำด้วย Linear Fade-Out สู่ 0 อย่างสมบูรณ์ |
+| **Unified Icon System** | **Font Awesome 6 Free + Pixel SVG** | ไอคอนระบบมาตรฐานคมชัด กึ่งกลางสมดุล (`assets/fontawesome/`) แคชออฟไลน์ 100% ผสานเวกเตอร์พิกเซลเรโทร (`pixel-coin.svg`, `pixel-calc.svg`) |
 
 ---
 
 ## 3. สถาปัตยกรรมระบบและการไหลของข้อมูล (System Architecture)
+
+> 🗺️ **แผนภาพสถาปัตยกรรมเชิงโต้ตอบฉบับสมบูรณ์ (Interactive Architecture Diagram):**  
+> สามารถเปิดดูแผนภาพสถาปัตยกรรมระบบ 4 ลำดับชั้น (Tier 1–4: Shell, Views, Modals & Bento Sub-views, Middleware, Database & External Cloud) แบบ Visual Interactive พร้อมระบบค้นหา, โหมด Dark/Light, และ Trace Motion ได้โดยตรงที่:  
+> 🔗 **[pixel-pos-system.html](file:///e:/xampp/htdocs/myproject/about_pos/.archify/pixel-pos-system.html)**  
+> *(สร้างและคอมไพล์สถาปัตยกรรมผ่านคำสั่ง `/archify` หรือ `npm run archify` จากสเปก [.archify/pixel-pos.architecture.json](file:///e:/xampp/htdocs/myproject/about_pos/.archify/pixel-pos.architecture.json))*
 
 ```text
 ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -76,7 +92,7 @@ Pixel POS & AI Inventory ได้รับการออกแบบภาย�
 │   │   ├── views/stockin.html       (AI Stock-In: Staging Cards / Table)                           │
 │   │   ├── views/dashboard.html     (Reports & Chart.js Analytics)                                 │
 │   │   ├── views/settings.html      (Store Config, VAT, Printers, API Keys)                        │
-│   │   └── views/modals.html        (14 Universal Modals Registry)                                 │
+│   │   └── views/modals.html        (21 Universal Modals Registry)                                 │
 │   └── Event Bus (appBus in dbHelper.js) ──► Scoped Disposable unsubscriptions                     │
 └────────────────────────────────────────┬──────────────────────────────────┬───────────────────────┘
                                          │                                  │
@@ -105,7 +121,8 @@ Pixel POS & AI Inventory ได้รับการออกแบบภาย�
 ```text
 about_pos/
 ├── assets/
-│   ├── icons/                  # ไอคอน PWA (192x192, 512x512, Maskable, Apple Touch Icon)
+│   ├── fontawesome/            # Font Awesome 6 Free (all.min.css และ fa-solid-900.woff2) แคชใน sw.js สำหรับทำงานออฟไลน์ 100%
+│   ├── icons/                  # ไอคอน PWA, pixel-coin.svg (เหรียญทอง), pixel-calc.svg (เครื่องคิดเลข 2.5D Isometric)
 │   ├── images/                 # ภาพสำรอง (placeholder.svg, no-image)
 │   └── sfx/                    # โฟลเดอร์สำรองสำหรับไฟล์เสียง
 ├── css/
@@ -126,22 +143,31 @@ about_pos/
 │   │   ├── categories.js       # โมดูลจัดการหมวดหมู่สินค้า (Lifecycle: init / destroy, จัดลำดับ sort_order)
 │   │   ├── orders.js           # โมดูลประวัติการขาย (Lifecycle: init / destroy, กรองวันที่, พิมพ์ซ้ำ, ยกเลิกบิล)
 │   │   ├── pos.js              # โมดูลขายหน้าร้าน (Lifecycle: init / destroy, ตะกร้าสินค้า, สแกนบาร์โค้ด, พักบิล, LED Qty Numpad)
-│   │   ├── products.js         # โมดูลคลังสินค้า (Lifecycle: init / destroy, แคตตาล็อก, เพิ่ม/แก้ไขสินค้า, CSV)
+│   │   ├── products.js         # โมดูลคลังสินค้า (Lifecycle: init / destroy, แคตตาล็อก, เพิ่ม/แก้ไขสินค้า, Voice-to-Name, CSV)
 │   │   ├── reports.js          # โมดูลรายงานและสถิติ (Lifecycle: init / destroy, KPIs ยอดขาย, กำไร, Chart.js 4 รูปแบบ)
 │   │   ├── settings.js         # โมดูลตั้งค่าร้านค้า (Lifecycle: init / destroy, ภาษี VAT, เครื่องพิมพ์, Gemini Key, GAS URL)
-│   │   └── stock-in.js         # โมดูลรับเข้าสต็อก AI (Lifecycle: init / destroy, Gemini Vision, Staging Cards/Table, Stepper)
+│   │   ├── stock-in.js         # โมดูลรับเข้าสต็อก AI (Lifecycle: init / destroy, Gemini Vision, Staging Cards/Table, Stepper)
+│   │   └── stockAiAudit.js     # โมดูลตรวจสอบคุณภาพข้อมูลสินค้า & ค้นหาชื่อด้วยบาร์โค้ด AI (Stock AI Audit & Hygiene Hub)
 │   └── utils/
 │       ├── audio.js            # ระบบสังเคราะห์เสียง Chiptune 8-bit (Web Audio API) พร้อมระบบเปิด/ปิดเสียง Mute และ Volume Control
 │       ├── barcodeHelper.js    # แก้ไขปัญหาแป้นพิมพ์ภาษาไทย (Thai-English Layout Auto-Correction: เกษมณี & ปัตตโชติ)
+│       ├── cameraScanner.js    # ตัวจัดการกล้องสแกนบาร์โค้ด 1D/2D และถ่ายภาพสินค้าความละเอียด 900x900
 │       ├── clipboard.js        # ฟังก์ชันคัดลอกข้อความลง Clipboard พร้อม Toast แจ้งเตือน
 │       ├── dbHelper.js         # Resilient DB Layer (สลับ Client, แก้ Schema Error ด้วย while loop) และ Event Bus (appBus)
 │       ├── gdrive.js           # ตัวแปลงลิงก์ Google Drive ID ไปเป็น Direct Google UserContent CDN URL
-│       ├── geminiApi.js        # เชื่อมต่อ Google Gemini Flash API พร้อม Failover Pool และ Timeout Protection
+│       ├── geminiApi.js        # เชื่อมต่อ Google Gemini API พร้อม Multi-Model 3.x Auto-Discovery, Fallback Cascade และ Timeout
+│       ├── iconHelper.js       # ระบบไอคอน Font Awesome 6 Free & Pixel SVG
 │       ├── imageUploader.js    # บีบอัดรูปภาพหน้าจอ/ไฟล์, แปลงเป็น Base64 แล้วส่งไปยัง Google Apps Script
+│       ├── productHygieneAuditor.js # เครื่องยนต์ตรวจจับชื่อ/ราคา/บาร์โค้ดผิดปกติระดับ 0ms และ Gemini Batch AI Audit
+│       ├── productMatcher.js   # เครื่องยนต์จับคู่สินค้าอัจฉริยะ (Space-Agnostic, Brand Dominance, Color Conflict)
 │       ├── promptpay.js        # สร้าง Payload ข้อความ PromptPay EMVCo QR พร้อมคำนวณ CRC16-CCITT Checksum
+│       ├── storageHelper.js    # จัดการ LocalStorage / SessionStorage อย่างปลอดภัยป้องกัน QuotaExceededError
+│       ├── thaiSpeechHelper.js # ระบบเสียงพูดแจ้งเตือนยอดเงินและเงินทอนภาษาไทย 25 แทร็ก (Web Audio Gapless Chaining)
 │       ├── themeHelper.js      # จัดการสลับธีมคู่ขนาน ('warm-arcade' และ 'cyber-emerald') บันทึก LocalStorage และยิง Event
 │       ├── thermal-printer.js  # จัดรูปแบบข้อความใบเสร็จรับเงิน ESC/POS และส่งคำสั่งพิมพ์ลงกระดาษความร้อน
-│       └── uiHelper.js         # Micro-Loader Overlay แบบ Retro Arcade พร้อมฟังก์ชัน showLoader / hideLoader / withLoader
+│       ├── uiHelper.js         # Micro-Loader Overlay แบบ Retro Arcade พร้อมฟังก์ชัน showLoader / hideLoader / withLoader
+│       ├── voiceSearch.js      # เครื่องยนต์สั่งงานด้วยเสียงภาษาไทย (Voice-to-Cart 3-Tier & Quick-Add Voice-to-Name Dictation)
+│       └── wakeLock.js         # ป้องกันหน้าจอแท็บเล็ตดับขณะเปิดหน้าขาย POS (Screen Wake Lock API)
 ├── tools/
 │   └── bump-version.js         # สคริปต์ Node.js ปรับเวอร์ชันอัตโนมัติ (Atomic Bump: js/config.js + sw.js) ผ่าน npm run bump
 ├── views/
@@ -162,161 +188,42 @@ about_pos/
 ├── README.md                   # เอกสารคู่มือระบบฉบับสมบูรณ์ (ไฟล์นี้)
 ├── server.js                   # Node.js HTTP Web Server ในตัวพร้อมระบบตรวจจับพอร์ตชน
 ├── sw.js                       # Service Worker แคชไฟล์สำหรับทำงานออฟไลน์
-└── tailwind.config.js          # การตั้งค่าคอนฟิกของ Tailwind CSS (Theme, Colors, Fonts, Content paths)
+├── tailwind.config.js          # การตั้งค่าคอนฟิกของ Tailwind CSS (Theme, Colors, Fonts, Content paths)
+└── unused_files/               # โฟลเดอร์เก็บไฟล์ที่ไม่ได้ใช้งานแล้ว (Local Only - ระบุใน .gitignore) พร้อม CATALOG.txt
 ```
 
 ---
 
 ## 5. โครงสร้างฐานข้อมูลและสคริปต์ SQL (Database Schemas & SQL)
 
-ระบบเชื่อมต่อกับฐานข้อมูล **PostgreSQL 15+** บน **Supabase** ประกอบด้วย 6 ตารางหลัก โดยสามารถนำสคริปต์ SQL ด้านล่างนี้ไปรันในช่อง **SQL Editor** ของ Supabase เพื่อสร้างตารางทั้งหมดพร้อม Index, Foreign Keys, Default Records และ Row Level Security (RLS) Policies:
+ระบบเชื่อมต่อกับฐานข้อมูล **PostgreSQL 15+** บน **Supabase** ร่วมกับแคชในเครื่องผ่าน **Dexie.js (IndexedDB)** มีโครงสร้างหลักประกอบด้วย 6 ตาราง, 1 View ความปลอดภัย Zero-Secret, และ 3 Atomic Stored Procedures ดังนี้:
 
-```sql
--- ==============================================================================
--- 1. ตารางหมวดหมู่สินค้า (categories)
--- ==============================================================================
-CREATE TABLE IF NOT EXISTS public.categories (
-    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
-    name TEXT NOT NULL,
-    sort_order INT DEFAULT 0,
-    created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
-);
+### 5.1 ตารางฐานข้อมูลหลัก (6 Core Tables)
 
-CREATE INDEX IF NOT EXISTS idx_categories_sort_order ON public.categories (sort_order ASC);
+| ตาราง (Table) | หน้าที่หลัก | คอลัมน์สำคัญ | ข้อจำกัด & ดัชนี (Constraints & Indexes) |
+|---|---|---|---|
+| `categories` | หมวดหมู่สินค้า | `id`, `name`, `sort_order`, `created_at` | Primary Key `id`, Index `sort_order ASC` |
+| `products` | แคตตาล็อกสินค้าและสต็อก | `id`, `name`, `barcode`, `cost`, `price`, `stock`, `unit`, `category_id`, `image_url`, `is_quick_item`, `is_active`, `track_stock`, `updated_at` | Primary Key `id`, Unique `barcode`, Index `category_id`, Index `is_active` |
+| `orders` | บิลและคำสั่งซื้อ | `id`, `order_no`, `status`, `payment_type`, `total_amount`, `discount`, `net_amount`, `total_cost`, `profit`, `cash_received`, `change_amount`, `transfer_amount`, `void_reason`, `created_at` | Primary Key `id`, Unique `order_no`, Index `created_at DESC` |
+| `sale_items` | รายการสินค้าในแต่ละบิล | `id`, `order_id`, `product_id`, `product_name`, `quantity`, `unit_price`, `unit_cost`, `subtotal` | Primary Key `id`, FK `order_id` (CASCADE), FK `product_id` (SET NULL) |
+| `stock_movements` | บันทึกประวัติเคลื่อนไหวสต็อก | `id`, `product_id`, `type`, `quantity`, `unit_cost`, `note`, `created_at` | Primary Key `id`, FK `product_id` (CASCADE), Index `created_at DESC` *(ไม่มี `ref_invoice_no`)* |
+| `app_settings` | การตั้งค่าร้านและฮาร์ดแวร์ | `id`, `store_name`, `store_address`, `store_tel`, `tax_id`, `promptpay_number`, `vat_rate`, `enable_receipt_vat`, `qr_type`, `custom_qr_url`, `enable_thermal_printer`, `printer_paper_size`, `auto_print_receipt`, `pos_grid_cols`, `gemini_api_key`, `google_apps_script_url` | Single Row PK `id = 1`, RLS Read-only Public, Write Authenticated |
 
--- ==============================================================================
--- 2. ตารางแคตตาล็อกสินค้าและสต็อก (products)
--- ==============================================================================
-CREATE TABLE IF NOT EXISTS public.products (
-    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
-    name TEXT NOT NULL,
-    barcode TEXT UNIQUE,
-    cost NUMERIC(12, 3) DEFAULT 0.000 NOT NULL,
-    price NUMERIC(12, 2) DEFAULT 0.00 NOT NULL,
-    stock NUMERIC(12, 2) DEFAULT 0 NOT NULL,
-    unit TEXT DEFAULT 'ชิ้น' NOT NULL,
-    category_id BIGINT REFERENCES public.categories(id) ON DELETE SET NULL,
-    image_url TEXT,
-    is_quick_item BOOLEAN DEFAULT FALSE,
-    is_active BOOLEAN DEFAULT TRUE,
-    track_stock BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
-    updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
-);
+### 5.2 มุมมองความปลอดภัย Zero-Secret (1 Database View)
 
-CREATE INDEX IF NOT EXISTS idx_products_barcode ON public.products (barcode);
-CREATE INDEX IF NOT EXISTS idx_products_category ON public.products (category_id);
-CREATE INDEX IF NOT EXISTS idx_products_active ON public.products (is_active);
+| มุมมอง (View) | หน้าที่และนโยบายความปลอดภัย | สิทธิ์เข้าถึง |
+|---|---|---|
+| `public_app_settings` | คัดกรองเฉพาะข้อมูลแบรนด์ร้านค้า พารามิเตอร์พิมพ์สลิป และ PromptPay โดย **ตัดคีย์ลับ (Gemini API Key, GAS URL, รหัสผ่าน) ออก 100%** สำหรับเรียกใช้หน้าร้าน | `GRANT SELECT TO anon, authenticated` |
 
--- ==============================================================================
--- 3. ตารางบันทึกคำสั่งซื้อ / ใบเสร็จรับเงิน (orders)
--- ==============================================================================
-CREATE TABLE IF NOT EXISTS public.orders (
-    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
-    order_no TEXT NOT NULL UNIQUE,
-    status TEXT DEFAULT 'COMPLETED' NOT NULL, -- 'COMPLETED', 'VOIDED'
-    payment_type TEXT DEFAULT 'CASH' NOT NULL, -- 'CASH', 'PROMPTPAY', 'CUSTOM_QR', 'TRANSFER'
-    total_amount NUMERIC(12, 2) DEFAULT 0.00 NOT NULL,
-    discount NUMERIC(12, 2) DEFAULT 0.00 NOT NULL,
-    net_amount NUMERIC(12, 2) DEFAULT 0.00 NOT NULL,
-    total_cost NUMERIC(12, 3) DEFAULT 0.000 NOT NULL,
-    profit NUMERIC(12, 2) DEFAULT 0.00 NOT NULL,
-    cash_received NUMERIC(12, 2) DEFAULT 0.00 NOT NULL,
-    change_amount NUMERIC(12, 2) DEFAULT 0.00 NOT NULL,
-    void_reason TEXT,
-    created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
-);
+### 5.3 ฟังก์ชันจัดการธุรกรรมระดับอะตอมิก (3 Atomic Stored Procedures)
 
-CREATE INDEX IF NOT EXISTS idx_orders_created_at ON public.orders (created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_orders_order_no ON public.orders (order_no);
+| ฟังก์ชัน RPC (Stored Procedure) | วัตถุประสงค์ (ACID Guarantee) | พารามิเตอร์ |
+|---|---|---|
+| `adjust_product_stock_atomic` | ปรับยอดสต็อกสินค้า พร้อมบันทึกประวัติความเคลื่อนไหวลง `stock_movements` ในธุรกรรมเดียวด้วย Row-Level Locking (`FOR UPDATE`) ป้องกันสต็อกเคลื่อน | `p_product_id`, `p_delta`, `p_movement_type`, `p_unit_cost`, `p_note` |
+| `void_order_atomic` | ยกเลิกบิล (`VOIDED`) พร้อมคำนวณและคืนสต็อกสินค้าทุกรายการในบิลกลับเข้าคลังอัตโนมัติในธุรกรรมเดียว | `p_order_id`, `p_reason`, `p_timestamp` |
+| `sync_offline_order_atomic` | ซิงค์บิลออฟไลน์แบบครบวงจร (สร้างบิล + บันทึกรายการ + ตัดสต็อก + บันทึก movement) รองรับ Idempotency ป้องกันบิลซ้ำ | `p_order JSONB` |
 
--- ==============================================================================
--- 4. ตารางรายการสินค้าในแต่ละบิล (sale_items)
--- ==============================================================================
-CREATE TABLE IF NOT EXISTS public.sale_items (
-    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
-    order_id BIGINT REFERENCES public.orders(id) ON DELETE CASCADE NOT NULL,
-    product_id BIGINT REFERENCES public.products(id) ON DELETE SET NULL,
-    product_name TEXT NOT NULL,
-    quantity NUMERIC(12, 2) DEFAULT 1 NOT NULL,
-    unit_price NUMERIC(12, 2) NOT NULL,
-    unit_cost NUMERIC(12, 3) DEFAULT 0.000 NOT NULL,
-    subtotal NUMERIC(12, 2) NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS idx_sale_items_order_id ON public.sale_items (order_id);
-CREATE INDEX IF NOT EXISTS idx_sale_items_product_id ON public.sale_items (product_id);
-
--- ==============================================================================
--- 5. ตารางประวัติความเคลื่อนไหวสต็อก (stock_movements)
--- ==============================================================================
-CREATE TABLE IF NOT EXISTS public.stock_movements (
-    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
-    product_id BIGINT REFERENCES public.products(id) ON DELETE CASCADE NOT NULL,
-    type TEXT NOT NULL, -- 'STOCK_IN', 'SALE', 'ADJUST', 'RETURN', 'DAMAGE', 'VOID'
-    quantity NUMERIC(12, 2) NOT NULL,
-    unit_cost NUMERIC(12, 3) DEFAULT 0.000,
-    note TEXT,
-    created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS idx_stock_movements_product_id ON public.stock_movements (product_id);
-CREATE INDEX IF NOT EXISTS idx_stock_movements_created_at ON public.stock_movements (created_at DESC);
-
--- ==============================================================================
--- 6. ตารางการตั้งค่าร้านค้าและระบบ (app_settings)
--- ==============================================================================
-CREATE TABLE IF NOT EXISTS public.app_settings (
-    id INT PRIMARY KEY DEFAULT 1,
-    store_name TEXT DEFAULT 'ร้านค้าพิกเซล POS',
-    store_address TEXT,
-    store_tel TEXT,
-    tax_id TEXT,
-    receipt_header TEXT,
-    receipt_footer TEXT,
-    promptpay_number TEXT,
-    vat_rate NUMERIC(5, 2) DEFAULT 7.00,
-    enable_receipt_vat BOOLEAN DEFAULT FALSE,
-    qr_type TEXT DEFAULT 'promptpay', -- 'promptpay' หรือ 'custom'
-    custom_qr_url TEXT,
-    custom_qr_note TEXT,
-    enable_thermal_printer BOOLEAN DEFAULT FALSE,
-    printer_paper_size TEXT DEFAULT '58mm', -- '58mm' หรือ '80mm'
-    auto_print_receipt BOOLEAN DEFAULT FALSE,
-    pos_grid_cols INT DEFAULT 4,
-    gemini_api_key TEXT,
-    google_apps_script_url TEXT,
-    updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
-);
-
--- สร้างเรคคอร์ดเริ่มต้นสำหรับการตั้งค่าร้าน
-INSERT INTO public.app_settings (id, store_name)
-VALUES (1, 'ร้านค้าพิกเซล POS')
-ON CONFLICT (id) DO NOTHING;
-
--- ==============================================================================
--- 7. กำหนดนโยบายความปลอดภัย Row Level Security (RLS)
--- ==============================================================================
-ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.sale_items ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.stock_movements ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.app_settings ENABLE ROW LEVEL SECURITY;
-
--- อนุญาตให้ทั้ง Authenticated User และ Anon Public Key ใช้งานได้เต็มสิทธิ์สำหรับการขายหน้าร้าน
-DO $$
-DECLARE
-  tbl TEXT;
-BEGIN
-  FOREACH tbl IN ARRAY ARRAY['categories', 'products', 'orders', 'sale_items', 'stock_movements', 'app_settings']
-  LOOP
-    EXECUTE format('DROP POLICY IF EXISTS "Public access on %s" ON public.%s;', tbl, tbl);
-    EXECUTE format('CREATE POLICY "Public access on %s" ON public.%s FOR ALL USING (true) WITH CHECK (true);', tbl, tbl);
-  END LOOP;
-END $$;
-```
+> 💡 **ไฟล์สคริปต์ SQL ฉบับเต็ม:** สำหรับการติดตั้งฐานข้อมูลใหม่หรือ Migration ทั้งหมด สามารถดูและรันคำสั่ง DDL พร้อม RLS และ Triggers ได้โดยตรงจากไฟล์ [sql/migration_atomic_stock_and_transactions.sql](file:///e:/xampp/htdocs/myproject/about_pos/sql/migration_atomic_stock_and_transactions.sql)
 
 ---
 
@@ -330,6 +237,10 @@ END $$;
     - สัญญาณเสียงไกด์ **"ติ๊ด!"** ทันทีที่ไมค์เปิดทำงาน
     - ระบบ Visualizer สองระดับ: แอนิเมชันคลื่นเสียง Equalizer 4 แท่ง (`.voice-sound-waves`) บนปุ่มสีแดง CRT Pulse และแบนเนอร์ด้านบน (`#pos-voice-banner`) สตรีมข้อความสดเรียลไทม์ขณะกำลังพูด
     - ตรรกะตรวจจับคำระบุราคา เช่น *"โค้ก 20 บาท"* เพื่อเทียบเคียงหาสินค้าที่ตรงระดับราคา (เช่น โค้ก 590 มล. ราคา 19 บาท) โดยตั้งค่าเริ่มต้นเป็น 1 หน่วยทันที
+    - **ระบบแนะนำตัวเลือกตระกูลสินค้าและคำใกล้เคียงอัตโนมัติ (Top Match Auto-Add with $\le 10$ Variation Cards)**:
+      - เพิ่มสินค้าตัวที่ดีที่สุด (Top Match) เข้าตะกร้าทันที และไฮไลต์ด้วยกรอบสีเขียว Emerald Pulse (`.voice-card-auto-added`) พร้อมป้าย `✓ เพิ่มแล้ว`
+      - สกัดแบรนด์/ตระกูลสินค้า (`getProductBrandKeywords`), แยกคำประสม (`extractVoiceRelatedKeywords`), รองรับเสียงใกล้เคียง (Sound-Alikes เช่น "ร๊อก" <-> "ร็อค") และส่วนขยายคำ (เช่น พูด *"หงส์"* จะเพิ่ม *"หงส์ แบน"* เข้าตะกร้า และดึงสินค้าที่มีคำว่า *"หงส์..."* เช่น *"หงส์ทอง"* มาร่วมในตัวเลือกด้วย หรือพูด *"เลย์ร๊อก"* จะนำ *"เลย์ร็อค..."* เข้าตะกร้า และดึงสินค้าที่มีคำว่า *"เลย์"* หรือ *"ร๊อก/ร็อค"* มาเป็นตัวเลือกด้วย)
+      - นำสินค้าตัวเลือกใกล้เคียง/Variations มาแสดงใน Grid (`pos-card-content`) รวมสูงสุด **10 การ์ด** พร้อมป้าย `+ เลือกตัวนี้` ให้แคชเชียร์แตะเลือกสลับได้ทันทีในคลิกเดียว
     - มีระบบขอสิทธิ์ไมค์ล่วงหน้า (`ensureMicPermission`) รองรับสภาพแวดล้อม PWA / HTTPS ได้อย่างลื่นไหล
   - ช่องกรอกค้นหาชื่อสินค้า/ยิงบาร์โค้ดฮาร์ดแวร์ (`#pos-barcode-input`) พร้อมปุ่มล้างคำค้นหา และปุ่มเปิดกล้องสแกนบาร์โค้ด
   - **แถบหมวดหมู่สินค้าและปุ่มลูกศรเพรียวบาง (Slim Category Arrows & 48px Tabs)**:
@@ -364,23 +275,38 @@ END $$;
 ### 6.2 หน้าจอชำระเงิน (Payment & Checkout View) - `views/payment.html`
 - เปลี่ยนผ่านจากหน้า POS เป็นแบบ 2 คอลัมน์เต็มหน้าจอเพื่อความสะดวกในการจัดการคำสั่งซื้อ:
   - **คอลัมน์ซ้าย (Receipt Summary)**: แสดงสรุปรายการสินค้าในบิลทั้งหมด, ยอดรวม, ส่วนลดท้ายบิล, ภาษี VAT, และยอดสุทธิที่ต้องชำระ
-  - **คอลัมน์ขวา (Payment Method & Interaction)**:
-    - แถบเลือกวิธีชำระเงิน: **💵 เงินสด (Cash)**, **📱 พร้อมเพย์ (PromptPay)**, และ **🏦 บัญชีร้านค้า (Shop QR)**
+  - **คอลัมน์ขวา (Payment Method & Interaction - Dynamic Attention Engine)**:
+    - **ระบบกรอบสีเน้นสถานะการรับเงิน (Dynamic Border Attention)**: กรอบของคอนเทนเนอร์ `#pos-checkout-col-right` เปลี่ยนสี 3 สีตามประเภทการรับเงินเพื่อดึงดูดสายตาและป้องกันการสับสน:
+      - **เงินสด (Cash):** กรอบสีส้มสดใสเรโทร (`#f97316`) พร้อมปุ่มแท็บ Active สีส้ม
+      - **QR / โอนเงิน (PromptPay):** กรอบสีม่วงเด่นชัด (`#9333ea`) พร้อมปุ่มแท็บ Active สีม่วง
+      - **ร่วมจ่าย (Split สด+โอน):** กรอบสีชมพูสะดุดตา (`#ec4899`) พร้อมปุ่มแท็บ Active สีชมพู
     - **แท็บเงินสด (Cash Payment with On-Screen Numpad)**:
       - ปุ่มลัดธนบัตรสำเร็จรูป: `฿20`, `฿50`, `฿100`, `฿500`, `฿1,000`, และ `พอดี`
-      - ช่องกรอกเงินสดที่รับมา (`#pos-cash-received`)
+      - ช่องกรอกเงินสดที่รับมา (`#pos-cash-received`) ปรับสีกรอบและพื้นหลังตามโหมด
       - **แผงคีย์ตัวเลขรับเงินสด (Cash Numpad Grid)**: ปุ่มตัวเลข 0-9, `00`, จุดทศนิยม `.`, ปุ่มล้าง `C`, ปุ่มลบ `⌫`, และปุ่ม `พอดี`
       - จอ LED แสดงเงินทอนสีเขียวเรืองแสง (`#pos-change-display`) ขนาดใหญ่ ชัดเจน อ่านง่าย
-    - **แท็บพร้อมเพย์ (Dynamic PromptPay)**: เจนเนอเรท QR Code พร้อมเพย์ตามยอดบิลโดยตรง ผ่านไลบรารี `promptpay.js`
-    - **แท็บ QR บัญชีร้านค้า (Custom Shop QR)**: แสดงภาพ QR Code ธนาคารของร้านที่อัปโหลดไว้
+    - **แท็บพร้อมเพย์ (Dynamic PromptPay)**: เจนเนอเรท QR Code พร้อมเพย์ตามยอดบิลโดยตรง ผ่านไลบรารี `promptpay.js` พร้อม Slide-Up QR Drawer
+    - **แท็บร่วมจ่าย (Split Payment)**: ช่องกรอกคู่สำหรับยอดโอนและเงินสด
     - ตัวเลือกเปิด/ปิดการพิมพ์ใบเสร็จความร้อนอัตโนมัติ
     - ปุ่ม `💾 บันทึกการขาย (Complete Sale)` และปุ่มย้อนกลับไปหน้าขาย
 
 ### 6.3 หน้าจอสินค้าและคลังสินค้า (Products & Inventory) - `views/products.html`
-- แถบสถิติด้านบน (Inventory KPIs): สินค้าทั้งหมด, สินค้าพร้อมขาย, สินค้าสต็อกต่ำ/หมด, มูลค่าสต็อกรวมตามทุน
-- ช่องค้นหาชื่อสินค้า/บาร์โค้ด, ตัวกรองตามหมวดหมู่, ตัวกรองสถานะสต็อก (ทั้งหมด, มีสินค้า, สินค้าหมด)
+- แถบสถิติด้านบน (Inventory KPIs): สินค้าทั้งหมด, สินค้าพร้อมขาย, สินค้าสต็อกต่ำ/หมด, มูลค่าสต็อกรวมตามทุน (คำนวณเฉพาะสินค้าเปิดขาย และสินค้าปิดการขายจะถูกรีสต็อกเป็น 0 ชิ้นอัตโนมัติ)
+- ตัวกรองสถานะสต็อก 11 หมวดหมู่ (เรียงตามลำดับความคล่องตัว และตั้งค่าเริ่มต้นที่ **"เปิดขาย"**): `เปิดขาย`, `พร้อมขาย`, `ใกล้หมด`, `หมดสต็อก`, `🚨 ติดลบ`, `♾️ ไม่นับสต็อก`, `🆕 สินค้าเพิ่มใหม่`, `🔄 เปลี่ยนแปลงล่าสุด`, `⚡ ขายด่วน`, `ปิดขาย`, `ทั้งหมด`
+- **ระบบค้นหาสินค้าด้วยเสียงพูด (Voice Search Engine):** ปุ่มไมโครโฟนทรงสูงสไตล์ Arcade ด้านซ้ายสุด สั่งค้นหาและกรองรายการสินค้าด้วยเสียงภาษาไทยแบบ 3-Tier Multi-Level Priority
+- ช่องค้นหาชื่อสินค้า/บาร์โค้ด, ตัวกรองตามหมวดหมู่
 - ปุ่มฟังก์ชัน: `+ เพิ่มสินค้าใหม่` (เปิด CRUD Modal), `นำเข้า CSV (Import)`, `ส่งออก CSV (Export)`, และ `พิมพ์บาร์โค้ด`
-- ตารางสินค้า: รูปภาพขนาดย่อ, ชื่อสินค้า, บาร์โค้ด, หมวดหมู่, สต็อกคงเหลือ, ราคาทุน, ราคาขาย, Margin กำไร (%), ปุ่มสลับรายการด่วน (Quick Item Toggle), ปุ่มเปิด/ปิดการขาย, ปุ่มปรับสต็อกด่วน, ปุ่มแก้ไข, และปุ่มลบสินค้า
+- ตารางสินค้า (Touch-Friendly & Compact):
+  - **ระบบตัดหน้าตารางสินค้า (Inventory Pagination):** ตัดแสดงผลหน้าละ **25 รายการ** (`pageSize = 25`) พร้อมแถบควบคุมสลับหน้า (`◀ ย้อนกลับ`, ปุ่มเลขหน้าอัจฉริยะ, และ `ถัดไป ▶`) โดยจะซ่อนแถบตัดหน้าอัตโนมัติหากสินค้ามี $\le 25$ รายการ และรีเซ็ตกลับหน้า 1 เสมอเมื่อมีการค้นหาหรือกรองข้อมูล
+  - **ระบบท่อส่งรูปภาพและ De-duplication (Google Drive Pipeline v2.2):**
+    - แตะที่รูปภาพสินค้าเพื่อเปิดกล้องถ่ายภาพด่วน (Quick Photo 900×900 px) บันทึกและอัปเดตทันที
+    - **Instant Local Cache (`_localImageCache`):** แสดงรูปที่เพิ่งถ่ายได้ทันที 100% Zero-Latency บนตารางโดยไม่ต้องรอ Google Drive CDN Replicate
+    - **Smart Retry & Fallbacks:** สลับ URL ทางเลือกเมื่อเกิด CDN Propagation Delay ชั่วคราว ป้องกันรูปหลุดเป็นกล่องเปล่า
+    - **Auto-Cleanup (De-duplication):** ส่ง `oldFileId` ให้ Google Apps Script ย้ายรูปเดิมลงถังขยะอัตโนมัติ ไม่เกิดไฟล์ซ้ำซ้อนสะสมใน Google Drive
+    - **Audit Agent & Diagnostics:** มี Agent ประจำตัว [.agents/skills/image-pipeline-auditor/](file:///e:/xampp/htdocs/myproject/about_pos/.agents/skills/image-pipeline-auditor/) และชุดทดสอบ `tests/test_image_upload_diagnostics.js`
+  - แตะที่ตัวเลขบาร์โค้ดหรือไอคอน `🔄` เพื่อเปิดหน้าต่าง Re-new Barcode จับคู่สินค้าเดิมได้ทันที และมีปุ่มคัดลอกบาร์โค้ดใน Modal
+  - ปุ่มจัดการกะทัดรัด (`✏️ แก้` และ `🗑️`) ประหยัดพื้นที่ตาราง ไม่ดันล้นจอแท็บเล็ต 1024×640
+  - รองรับการปรับตัวเลขสต็อก ราคา และต้นทุนผ่าน Numpad Card ที่มีคอนทราสต์ชัดเจนในทุกธีม (ทั้ง Arcade Classic และ Cyber Emerald)
 
 ### 6.4 หน้าจอจัดการหมวดหมู่สินค้า (Categories) - `views/categories.html`
 - แสดงรายชื่อหมวดหมู่สินค้าทั้งหมด พร้อมลำดับการจัดเรียง (`sort_order`)
@@ -388,59 +314,100 @@ END $$;
 - ปุ่มสลับลำดับหมวดหมู่ขึ้น (`▲`) และลง (`▼`) เพื่อจัดตำแหน่งแถบในหน้าขาย
 - ปุ่ม `+ เพิ่มหมวดหมู่`, ปุ่มแก้ไขชื่อหมวดหมู่ และปุ่มลบหมวดหมู่ (พร้อมตรวจสอบป้องกันการลบหมวดหมู่ที่มีสินค้าผูกอยู่)
 
-### 6.5 หน้าจอประวัติการขาย (Orders History) - `views/orders.html`
-- ตัวกรองช่วงเวลา: วันนี้, เมื่อวาน, 7 วันย้อนหลัง, เดือนนี้, หรือระบุช่วงวันที่เอง
-- ตัวกรองตามช่องทางการชำระเงิน (เงินสด, พร้อมเพย์, บัญชีร้านค้า, โอนเงิน)
-- สรุปตัวเลขยอดขายรวมและกำไรสุทธิรวมของช่วงเวลาที่เลือก
-- ตารางแสดงประวัติบิล: เลขที่บิล (`INV-xxxxxxxx`), วันที่และเวลา, วิธีชำระเงิน, ยอดรวม, ส่วนลด, ยอดสุทธิ, กำไรสุทธิของบิล, และสถานะ (`COMPLETED` หรือ `VOIDED`)
-- การดูรายละเอียดบิล: เปิดป๊อปอัปแสดงใบเสร็จรับเงิน, ปุ่มสั่งพิมพ์ใบเสร็จความร้อนซ้ำ, และปุ่ม **ยกเลิกบิล (Void Bill)** เพื่อคืนสินค้ากลับเข้าสต็อก
+### 6.5 หน้าจอประวัติการขายและสรุปบิล (Orders History) - `views/orders.html`
+- **ชุด Bento Summary Cards (Hero Scoreboard 4 กล่องยอดสรุปด้านบนสุด)**:
+  1. 💵 **ยอดขายสุทธิ (`#orders-summary-sales`)**: แสดงยอดขายรวมของทุกบิลที่ผ่านการกรอง พร้อมป้ายเปรียบเทียบ % เทียบกับช่วงเวลาก่อนหน้า (Previous Period Comparison)
+  2. 📈 **กำไรสุทธิ (`#orders-summary-profit`)**: คำนวณกำไรสุทธิรวม, ป้าย Margin % และยอดต้นทุนรวม
+  3. 🧾 **จำนวนบิลที่สำเร็จ (`#orders-summary-count`)**: แสดงจำนวนบิลสำเร็จทั้งหมด และยอดขายเฉลี่ยต่อบิล (AOV)
+  4. 💳 **ช่องทางการรับเงิน (`#orders-summary-payment`)**: แสดงยอดเงินสด vs โอนเงิน/QR พร้อมแถบ Dual Progress Bar 2 สีคำนวณสัดส่วนแบบเรียลไทม์
+  - *การคำนวณทั้ง 4 กล่องจะคำนวณจากยอดรวมของทุกบิลที่ผ่านการกรอง (Total Filtered Orders) เสมอ ไม่ใช่เฉพาะ 25 รายการในหน้าที่กำลังเปิดอยู่*
+- **ชุดปุ่มตัวกรองช่วงเวลา (Retro Arcade Touch-Friendly Filter Bar)**:
+  - ปุ่มตัวเลือกมาตรฐาน: `วันนี้ [Active]` | `เมื่อวานนี้` | `สัปดาห์นี้` | `สัปดาห์ที่แล้ว` | `เดือนนี้` | `กำหนดเอง`
+  - คำนวณขอบเขตเวลาและช่วงเวลาก่อนหน้าด้วย Local Timezone (`getOrderPrevDateRangeBounds`) ป้องกันปัญหา UTC Offset หลุดวัน
+- **ระบบตัดแบ่งหน้า (Orders Pagination 25 รายการ/หน้า)**:
+  - แถบควบคุม `#orders-pagination` ใต้ตาราง: `[ ◀ ย้อนกลับ ]`, ตัวบอกสถานะ `หน้า X จาก Y (รวม Z บิล)`, และ `[ ถัดไป ▶ ]`
+  - ซ่อนแถบ Pagination อัตโนมัติหากบิลที่ผ่านการกรองมี $\le 25$ รายการ และรีเซ็ตกลับหน้า 1 เสมอเมื่อเปลี่ยนตัวกรอง
+- **ตารางแสดงประวัติบิล**: เลขที่บิล (`INV-xxxxxxxx`), วันที่และเวลา, วิธีชำระเงิน, ยอดรวม, ส่วนลด, ยอดสุทธิ, กำไรสุทธิของบิล, และสถานะ (`COMPLETED` หรือ `VOIDED`)
+- **การดูรายละเอียดและการยกเลิกบิล (Inline Void Confirmation & Restock)**:
+  - หน้าต่างรายละเอียดบิลและสลิปใบเสร็จรับเงิน พร้อมปุ่มพิมพ์ใบเสร็จความร้อนซ้ำ
+  - แผงยืนยันการยกเลิกบิลแบบ Inline ในตัว ป้องกันการยิงซ้ำ (`isVoiding`) และคืนสต็อกสินค้าลง `stock_movements` ถูกต้องตามมาตรฐาน
 
 ### 6.6 หน้าจอรับเข้าสต็อก AI (AI Stock-In Terminal) - `views/stockin.html`
 - **Input Panel**:
-  - อัปโหลดรูปภาพใบเสร็จ/บิลส่งของ หรือเปิดกล้องถ่ายภาพ
+  - อัปโหลดรูปภาพใบเสร็จ/บิลส่งของ หรือเปิดกล้องถ่ายภาพ (รองรับบิลทั้งแนวตั้งและแนวนอน)
+  - **ระบบหมุนภาพและสลับมุมมอง (Offscreen Canvas 90° Rotation & Expand View)**:
+    - ปุ่ม `หมุนซ้าย 90°` และ `หมุนขวา 90°` หมุนพิกเซลจริงผ่าน Canvas ลงใน Base64 ก่อนส่งให้ Gemini Vision อ่านข้อความได้ถูกต้อง
+    - ปุ่ม `ขยายเต็มจอ / พอดีกรอบ` (`#btn-stockin-toggle-expand`) และป้ายบอกทิศทางภาพอัตโนมัติ (`#stockin-orientation-badge`)
   - แถบแจ้งเตือนการบีบอัดรูปภาพฝั่งไคลเอนต์ (`#stockin-compression-badge`) แสดงผลลัพธ์การย่อภาพก่อนส่ง AI
   - ช่องวางข้อความดิบหรือ JSON จากคู่ค้า
   - ปุ่ม `🧠 วิเคราะห์ด้วย AI (Gemini Vision)`
 - **Staging Controls & Switcher**:
   - **ตัวสลับมุมมอง (View Switcher)**:
-    - `🗂️ การ์ด (Cards View)`: เหมาะสำหรับแท็บเล็ตและหน้าจอสัมผัส แสดงข้อมูลสินค้าแบบการ์ดแยกชิ้น มี Stepper ปุ่มกดขนาดใหญ่ 44px
+    - `🗂️ การ์ด (Cards View)`: โครงสร้างการ์ดแนวนอนจัดระเบียบ 2 คอลัมน์ (รูปภาพพร้อมปุ่มถ่ายรูปด่วนด้านซ้าย, ข้อมูลสินค้าและ Stepper 44px ด้านขวา)
     - `📋 ตาราง (Table View)`: เหมาะสำหรับจอคอมพิวเตอร์แนวนอน แสดงคอลัมน์ครบถ้วน
+  - **ระบบกล้องถ่ายรูปสินค้าด่วนแบบรวมศูนย์ (Unified Quick Photo Camera):** เชื่อมโยงเข้ากับ Retro Live Camera Viewfinder Modal (`#prod-camera-modal`) ของหน้า Inventory ถ่ายและตัดขอบสี่เหลี่ยมจัตุรัส 900×900 px พร้อมอัปโหลดขึ้น Google Drive และซิงค์ลงฐานข้อมูล Supabase / Dexie ทันทีเมื่อสินค้านั้นผูกกับสินค้าในระบบ
   - ปุ่ม `➕ เพิ่มรายการ`: สำหรับพิมพ์เพิ่มสินค้าเข้าสต็อกด้วยตนเองโดยไม่ต้องผ่าน AI
   - ป้ายแสดงจำนวนรายการที่พบในบิล
-- **Staging Interaction (การตรวจสอบและปรับข้อมูล)**:
+- **Staging Interaction (การตรวจสอบและปรับข้อมูล - มาตรฐานหน่วยค้าปลีก)**:
   - ระบุชื่อผู้ขาย (Supplier) และเลขที่เอกสาร (Invoice No.)
   - จับคู่สินค้ากับสต็อกเดิมอัตโนมัติ (ขึ้นป้าย `🔗 สินค้าเดิม` หรือ `✨ สินค้าใหม่`)
-  - ปรับจำนวนแพ็ค, จำนวนชิ้นต่อแพ็ค, ราคาทุนต่อแพ็ค, และราคาขายปลีก
-  - คำนวณจำนวนชิ้นรับเข้าจริง และราคาทุนต่อชิ้นอัตโนมัติ (ปัดเศษขึ้น 3 ตำแหน่ง)
+  - **ปุ่มนำบาร์โค้ดไปใช้เป็นสินค้าใหม่ (New Item Barcode Flow)**: เมื่อสแกนหาบาร์โค้ดใน Modal ค้นหาแล้วไม่พบ จะมีปุ่ม `➕ นำบาร์โค้ดนี้ไปใช้เป็นสินค้าใหม่` คัดลอกเลขบาร์โค้ดลงในการ์ดรับสินค้าทันที
+  - **การจัดเรียง 5 ช่องตามลำดับคณิตศาสตร์ค้าปลีก**:
+    `จำนวนกล่อง` ➔ `กล่องละ (฿)` ➔ `จำนวนหน่วยในกล่อง` ➔ `ทุน/หน่วย (฿)` ➔ `ราคาขาย/หน่วย (฿)`
+  - คำนวณจำนวนหน่วยรับเข้าจริง และราคาทุนต่อหน่วยอัตโนมัติ พร้อมแสดงผลรวมรับเข้าไว้ด้านขวาสุดของแถว
   - แจ้งเตือนเมื่อราคาทุนใหม่ต่างจากทุนเดิมในระบบ (`⚠️ ปรับราคาทุนใหม่`)
 - **Action Buttons**:
   - ปุ่ม `🗑️ ล้างรายการ`
   - ปุ่ม `💾 ยืนยันบันทึกรับเข้าสต็อก (Confirm Stock-in)` เพื่อเปิดโมดัลยืนยันแบบสัมผัส
 
-### 6.7 หน้าจอแดชบอร์ดรายงานและสถิติ (Dashboard & Reports) - `views/dashboard.html`
-- แถบตัวเลือกช่วงเวลา: วันนี้, เมื่อวาน, 7 วัน, 30 วัน, เดือนนี้, หรือระบุวันที่
-- การ์ดสรุปตัวชี้วัด (KPIs): ยอดขายรวม (Total Sales), ต้นทุนรวม (Total Cost), กำไรสุทธิ (Net Profit), อัตรากำไรขั้นต้น (Margin %), จำนวนคำสั่งซื้อ (Total Orders), และยอดขายเฉลี่ยต่อบิล (AOV)
-- **กราฟวิเคราะห์ Chart.js 4 รูปแบบ**:
-  1. กราฟเส้นแนวโน้มยอดขายและกำไร (Sales & Profit Timeline)
-  2. กราฟโดนัทสัดส่วนช่องทางการชำระเงิน (Payment Breakdown)
-  3. กราฟแท่งจัดอันดับ 10 สินค้าขายดีที่สุด (Top 10 Bestselling Products)
-  4. กราฟโดนัทสัดส่วนยอดขายตามหมวดหมู่สินค้า (Sales by Category)
-- รายการแจ้งเตือนสินค้าสต็อกใกล้หมด และรายการสินค้าสต็อกติดลบ
+### 6.7 ศูนย์วิเคราะห์กลยุทธ์ร้านค้าด้วย AI (AI-Analytics & Retail Strategy Center) - `views/dashboard.html`
+- **1. ส่วนบน: AI Strategic Command Card (วิเคราะห์สภาวะร้านสดด้วย Gemini Flash)**:
+  - กล่อง CRT Scanline สไตล์ Arcade พร้อมปุ่มกด `[ 🧠 แตะเพื่อวิเคราะห์สภาวะร้านด้วย AI ]`
+  - ประมวลผลสถิติร้านค้าตามช่วงเวลาที่เลือก และส่งต่อไปยัง Google Gemini Flash API ผ่านระบบ Failover Pool (`gemini-2.5-flash` ➔ `gemini-2.0-flash` ➔ `gemini-1.5-flash`)
+  - แสดงผลลัพธ์ 3 มิติเชิงกลยุทธ์:
+    - 🟢 **จุดเด่น / สินค้าขับเคลื่อน (Growth Highlights)**: สรุปสินค้าดาวรุ่งและสิ่งที่ร้านทำได้ดี
+    - 🟡 **ข้อควรระวัง & แนวโน้มที่ชะลอตัว (Watchouts & Stagnant Items)**: แจ้งเตือนหมวดหมู่ที่ยอดตกหรือสินค้าที่เริ่มนิ่ง
+    - 🔵 **AI Re-order Advisor**: คำแนะนำการสั่งของเข้าสต็อกล่วงหน้าก่อนของขาด พร้อมตารางรายการแนะนำ (`#ai-reorder-tbody`)
+  - ระบบ **Client-side Analytics Cache**: จดจำผลลัพธ์การวิเคราะห์ตามช่วงเวลา ไม่ยิง API ซ้ำซ้อนเมื่อสลับแท็บไปมา
+- **2. ส่วนกลาง: Retail Science & Matrix (2 คอลัมน์)**:
+  - **Peak Hours & Sales Timeline**: วิเคราะห์ช่วงเวลาที่ขายดีที่สุดของวัน (Best Slot Banner) และคำนวณการกระจายตัวของยอดขาย 4 ช่วงเวลาของวัน (🌅 เช้า 06-12 น., ☀️ บ่าย 12-17 น., 🌆 เย็น 17-21 น., 🌙 ดึก 21-24 น.)
+  - **Margin vs Volume Matrix**: จัดเกรดสินค้าในร้าน 3 ระดับตามโมเดลค้าปลีก:
+    - 🌟 *ดาวเด่น (High Margin + High Volume)*: สินค้าตัวทำกำไรหลัก
+    - ⚡ *ตัวดึงลูกค้า (Low Margin + High Volume)*: สินค้าหมุนเงินไว
+    - 📦 *ของดองทุน (High Margin + Low Volume)*: สินค้าที่ควรจัดโปรโมชั่นคู่
+- **3. ส่วนล่าง: Inventory Health & Deadstock Predictor (2 คอลัมน์)**:
+  - **มาตรวัดเงินจมสต็อก (Deadstock & Capital Trap)**: คำนวณมูลค่าต้นทุนรวมของสินค้าที่มีสต็อกแต่ไม่มีการขายเลยในรอบเวลานั้น (`stock > 0` และ 0 sales) พร้อมแสดง 5 อันดับแรกที่มีมูลค่าเงินจมสูงสุด
+  - **สต็อกติดลบ & วิกฤตใกล้หมด (Critical & Negative Stock Table)**: รวมสินค้าที่สต็อกติดลบ (`stock < 0`) และสินค้าใกล้หมด พร้อม **Quick Edit Modal Link** ที่สามารถแตะชื่อสินค้าหรือปุ่มจัดการเพื่อเปิด `#prod-crud-modal` แก้ไขสินค้าของหน้า Inventory ได้ทันทีแบบข้ามโมดูล
+- **4. ส่วนท้าย: กราฟวิเคราะห์ Chart.js 5 รูปแบบ (Main Display Tab Switcher)**:
+  1. `[ ยอดขาย & แนวโน้ม ]`: กราฟแท่งยอดขายสุทธิและกำไรสุทธิรายชั่วโมงหรือรายวัน (`#dash-chart-trend`)
+  2. `[ สินค้ายอดขายสูงสุด ]`: ตาราง Leaderboard และกราฟแท่งแนวนอน Top 5 ยอดขาย
+  3. `[ สินค้ากำไรสูงสุด ]`: ตาราง Leaderboard และกราฟแท่งแนวนอน Top 5 กำไรสุทธิ
+  4. `[ สินค้าจำนวนสูงสุด ]`: ตาราง Leaderboard และกราฟแท่งแนวนอน Top 5 จำนวนชิ้น
+  5. `[ สัดส่วนหมวดหมู่สินค้า ]`: ตารางสัดส่วนยอดขายตามหมวดหมู่ และกราฟโดนัท (`#dash-chart-categories`)
+  - ควบคุมการสร้างและทำลายอินสแตนซ์ Chart.js สะอาดหมดจดใน `destroy()` ป้องกัน Canvas Memory Leak 100%
 
 ### 6.8 หน้าจอตั้งค่าระบบ (Settings) - `views/settings.html`
-- **ข้อมูลร้านค้า**: ชื่อร้าน, ที่อยู่, เบอร์โทรศัพท์, เลขประจำตัวผู้เสียภาษี, ข้อความหัวบิล และท้ายบิล
-- **ภาษีมูลค่าเพิ่ม (VAT)**: อัตราภาษี (%), สวิตช์เปิด/ปิดการคำนวณและแสดงภาษีในใบเสร็จ
-- **การรับชำระเงิน**: หมายเลขพร้อมเพย์ (เบอร์มือถือ หรือ เลขผู้เสียภาษี), เลือกรูปแบบ QR Code, อัปโหลดรูปภาพ QR บัญชีร้านค้า
-- **เครื่องพิมพ์ใบเสร็จความร้อน**: สวิตช์เปิดใช้งาน, ขนาดหน้ากระดาษ (58 มม. หรือ 80 มม.), สวิตช์สั่งพิมพ์อัตโนมัติหลังรับเงิน, ปุ่มทดสอบพิมพ์
-- **การเชื่อมต่อ AI & Cloud**: ช่องระบุ Google Gemini API Key (มีระบบซ่อน Masking ป้องกันเบราว์เซอร์จำรหัสผ่าน), ช่องระบุ Google Apps Script Web App URL, ปุ่มทดสอบการเชื่อมต่อ Gemini API
-- **เลย์เอาต์หน้าขาย**: เลือกจำนวนคอลัมน์การแสดงผลสินค้าในหน้า POS (3, 4, 5, 6 คอลัมน์)
-- **บัญชีผู้ใช้งาน**: แสดงอีเมลผู้ใช้งานปัจจุบัน และปุ่มออกจากระบบ (Sign Out)
+- **สถาปัตยกรรมแถบ Sub-Tabs กะทัดรัด (`gap-[0.2rem]`)**: ออกแบบปุ่ม Sub-Tabs ทั้ง 6 ปุ่มด้วยขนาดกะทัดรัด (`px-2.5 sm:px-3 py-1.5 text-xs`) พร้อมไอคอน Font Awesome คมชัด ทำให้ทั้ง 6 แท็บเรียงเป็นแถวเดียวพอดีบนหน้าจอแท็บเล็ต 1024x640 โดยไม่ตกบรรทัด
+- **1. ข้อมูลร้าน & เครื่องพิมพ์ (`tab-pane-store`)**: ข้อมูลโปรไฟล์ร้านค้า (ชื่อร้าน, ที่อยู่, เบอร์โทร, เลขภาษี, ข้อความท้ายบิล), กล่องภาษีมูลค่าเพิ่ม (VAT Rate & สวิตช์แสดงในสลิป), และเครื่องพิมพ์ใบเสร็จความร้อน (58mm/80mm, Auto-print, ปุ่มทดสอบพิมพ์)
+- **2. หน้าขาย POS & ธีมสี (`tab-pane-pos`)**:
+  - **Quick Display & Hardware Controls**: สวิตช์เปิด/ปิด **Screen Wake Lock** ควบคุมการล็อกหน้าจอไม่ให้หลับระหว่างประจำการหน้าขาย POS พร้อมไฟสถานะสด และกำจัดกล่องคอนโทรลซ้ำซ้อน
+  - **Theme Picker Bento Cards**: สลับธีมคู่ขนานระหว่าง *Warm Arcade* (คลาสสิกเรโทร สีครีม-ทอง-ดำ) และ *Cyber Emerald* (นีออนไซเบอร์ ดำ-เขียวมรกต)
+  - **Grid Density Selector**: เลือกระดับความหนาแน่นของคอลัมน์สินค้าหน้าร้าน (3, 4, 5, 6 คอลัมน์)
+  - **Sound & Voice Controls**: สวิตช์เปิด/ปิดเสียง SFX 8-bit และระบบเสียงพูดภาษาไทยแจ้งยอดเงินและเงินทอน
+- **3. ที่เก็บรูป & Google Drive (`tab-pane-storage`)**: ตั้งค่า Google Apps Script Web App Deployment URL สำหรับจัดเก็บภาพสินค้าลง Google Drive พร้อมปุ่มเปิดคู่มือการติดตั้งและคำแนะนำ
+- **4. Gemini AI & สแกนเนอร์ (`tab-pane-ai`)**: ช่องระบุ Gemini API Key (พร้อม Security Masking), ปุ่มทดสอบเชื่อมต่อ API, และปุ่มเปิดกล้องสแกนเนอร์ทดสอบ
+- **5. ติดตั้งแอป PWA (`tab-pane-pwa`)**: ตรวจสอบสถานะการติดตั้งแอป Progressive Web App, ตรวจสอบโควตาพื้นที่เก็บข้อมูลถาวร (Persistent Storage Quota), และปุ่มติดตั้ง Standalone App
+- **6. ฐานข้อมูล (`tab-pane-schema`)**:
+  - **Database Health & Diagnostics Bento Grid**: แสดงสถานะทั้ง 6 ตารางหลัก (`categories`, `products`, `orders`, `sale_items`, `stock_movements`, `app_settings`) พร้อม Schema Field Tags, Status Badges (`🟢 พร้อมใช้งาน`), และสถิติจำนวนข้อมูลสด (Live Row Counts) ดึงข้อมูลอัตโนมัติทันทีที่สลับเข้าแท็บ
+  - **Cross-Module Synchronicity Matrix**: แสดงความเชื่อมโยงระดับระบบ (หมวดหมู่ ➔ POS, สินค้าขายด่วน ➔ แท็บ ⭐ ขายดี, สินค้าบริการ/ปรุงสดไม่ตัดสต็อก, AI Stock-In ➔ สินค้า & สต็อกเข้า)
+  - **Verified SQL Migration Script**: รวมคำสั่ง SQL พร้อมใช้งานใน Supabase Studio > SQL Editor สอดคล้องตามกฎข้อที่ 6 (ความถูกต้องของตาราง `stock_movements` โดยไม่ส่งฟิลด์แปลกปลอม) พร้อมปุ่มคัดลอก SQL ในตัว
+  - **Local Database Snapshot Export (Dexie JSON Backup)**: ปุ่มสีม่วง *"สำรองข้อมูล JSON"* สำหรับดาวน์โหลดข้อมูล IndexedDB ทั้ง 6 ตารางและ Local Configurations ออกมาเป็นไฟล์ JSON กู้คืนได้ทันทีโดยไม่พึ่งพาระบบคลาวด์
 
 ---
 
 ## 7. ศูนย์รวมหน้าต่างป๊อปอัปและโมดัล (Modals Registry)
 
-หน้าต่างป๊อปอัปทั้งหมดของระบบถูกรวมศูนย์ไว้ใน `views/modals.html` (และโมดัลคีย์แพดใน `views/pos.html`) รวมทั้งสิ้น 20 โมดัล:
+หน้าต่างป๊อปอัปทั้งหมดของระบบถูกรวมศูนย์ไว้ใน `views/modals.html` (และโมดัลคีย์แพดใน `views/pos.html`) รวมทั้งสิ้น 21 โมดัล:
 
 | รหัสโมดัล (Modal ID) | ชื่อโมดัล / บทบาทหน้าที่ | รายละเอียดและการทำงานสำคัญ |
 | :--- | :--- | :--- |
@@ -450,7 +417,7 @@ END $$;
 | `prod-crud-modal` | **เพิ่ม/แก้ไขสินค้า (Product CRUD)** | ฟอร์มจัดการสินค้าเต็มรูปแบบ: อัปโหลดภาพ/ถ่ายรูป 900x900, สุ่มรหัสบาร์โค้ด, คำนวณ Margin %, สลับรายการด่วน, เปิด/ปิดระบบตัดสต็อก |
 | `modal-barcode-match` | **จับคู่บาร์โค้ดใหม่ (Re-new Barcode)** | นำบาร์โค้ดที่เพิ่งยิง มาจับคู่ผูกเข้ากับสินค้าเดิมที่มีอยู่ในระบบได้อย่างรวดเร็ว |
 | `modal-quick-quantity` | **แป้นตัวเลขปรับจำนวนสินค้าด่วน** | อยู่ใน `views/pos.html` มีจอ LED Scanline, ปุ่มลัดแพ็ค/โหล (+1, 6, 12, 24) และคีย์แพด 0-9 |
-| `modal-stockin-product-picker` | **เลือกจับคู่สินค้าใน Stock-In** | ค้นหาและเลือกสินค้าเดิมในระบบเพื่อผูกกับรายการในใบเสร็จรับเงิน พร้อมตัวเลือกสแกนบาร์โค้ดผ่านกล้อง |
+| `modal-stockin-product-picker` | **เลือกจับคู่สินค้าใน Stock-In** | ค้นหาและจับคู่สินค้าเดิมในระบบด้วย 2 ระบบหลัก: 🎙️ สั่งการด้วยเสียง (Web Speech API) และ 📷/⚡ สแกนบาร์โค้ด (กล้องและปืนยิง) พร้อมค้นหาชื่อไทยตรงตัวไม่แปลงสระเพี้ยน |
 | `modal-stockin-cat-unit` | **กำหนดหมวดหมู่และหน่วยนับ** | ป๊อปอัปเลือกหมวดหมู่และหน่วยนับสำหรับรายการสินค้าใหม่ใน Staging Table |
 | `modal-cost-diff-detail` | **แจ้งเตือนผลต่างราคาทุน (Cost Variance)** | แสดงการเปรียบเทียบระหว่างทุนเดิมในระบบ กับทุนใหม่จากใบเสร็จ เพื่อพิจารณาปรับราคาขายปลีก |
 | `modal-stockin-confirm-save` | **ยืนยันการบันทึกสต็อก AI** | สรุปจำนวนรายการ, จำนวนชิ้นรวม, มูลค่าทุนรวม และปุ่มกดยืนยันขนาดใหญ่สำหรับจอสัมผัส |
@@ -476,8 +443,12 @@ END $$;
 > 3. `destroy()`: เมธอดปลดเปลื้องทรัพยากร วนลูปสั่งทำงานทุก Callback ใน `this.disposables` และเคลียร์ค่า Pointer ใน DOM เพื่อป้องกัน Memory Leak 100% ควบคุมการทำงานอัตโนมัติผ่าน `setActiveModule()` ใน `viewLoader.js`
 
 ### 8.1 `js/modules/pos.js` (`PosModule`)
-- **Lifecycle Implementation**: รองรับ `async init()` (โหลดสินค้า/หมวดหมู่, ผูกคีย์ลัด Numpad, ดักฟัง `products:changed` และ `categories:changed`) และ `destroy()` (ถอดถอนคีย์บอร์ดลิสเนอร์และ Event Bus เมื่อสลับหน้า)
-- **High-Performance In-Memory Lookups ($O(1)$)**: มีดัชนีคู่ `_productById` และ `_productByBarcode` (Hash Maps) ดึงข้อมูลสินค้าทันที < 0.05ms เมื่อคลิกการ์ดสินค้า (`addToCartById`), วาดรายการตะกร้า (`updateCartUI`), หรือยิงบาร์โค้ด (`handleBarcodeScan`)
+- **Lifecycle & Zero Memory Leaks**: รองรับ `async init()` และ `destroy()` อย่างสมบูรณ์แบบ ทำการถอดถอนคีย์บอร์ดลิสเนอร์, Event Bus, ล้าง timers (`_searchDebounceTimer`, `_scanFocusTimer`) และ **ตัดการเชื่อมต่อตัวแปร DOM references ทั้งหมดกว่า 25 ตัวเป็น `null`** เพื่อให้ Garbage Collection ทำงานได้ทันที กำจัด Detached DOM Tree leaks 100%
+- **Clean Audio Architecture & Zero AudioContext Leaks**: รวมการเล่นเสียงตอบรับผ่าน `playAudio` ใน `audio.js` (Singleton AudioContext + Compressor) ลบเมธอดซ้ำซ้อนและตัดโค้ดเก่าที่สร้าง `new AudioCtx()` ใหม่ ป้องกันการรั่วไหลของหน่วยความจำเสียง
+- **Category Tabs Event Delegation**: ผูก event listener `click` เข้ากับคอนเทนเนอร์ `#pos-category-tabs` เพียงจุดเดียวใน `bindDOMEvents()` โดยใน `renderCategories()` เหลือเพียงการอัปเดต `innerHTML` ขจัด DOM event churn จากการวนลูปผูกทุกปุ่มในทุกรอบเรนเดอร์
+- **Smart Debounced Search (150ms)**: เพิ่มการหน่วงเวลา 150ms ในช่องค้นหา `#pos-search-input` ขณะผู้ใช้กำลังพิมพ์ เพื่อป้องกันการคำนวณ Sorting/Filtering ซ้ำซ้อน และสั่งเรนเดอร์ทันทีเมื่อกด `Enter`, `Escape` หรือกดล้างคำค้น
+- **Zero-Latency Touch Ergonomics**: กำหนด `touch-action: manipulation` บนปุ่ม `.pixel-btn-sm`, `.pos-cat-tab`, `.pos-cart-step-btn` และ `.pos-cart-del-btn` ตัดความหน่วง 300ms ของเบราว์เซอร์สัมผัสบนแท็บเล็ต 1024x640
+- **High-Performance In-Memory Lookups ($O(1)$)**: มีดัชนีคู่ `_productById` และ `_productByBarcode` (Hash Maps) รองรับทั้ง String และ `safeNumberId` ดึงข้อมูลสินค้าทันที < 0.05ms เมื่อคลิกการ์ดสินค้า (`addToCartById`), วาดรายการตะกร้า (`updateCartUI`), หรือยิงบาร์โค้ด (`handleBarcodeScan`)
 - **Single-Pass Category Aggregation ($O(N)$)**: ปรับปรุง `renderCategories()` นับจำนวนสินค้าและยอดขายดีในลูปเดียว ขจัดปัญหา CPU Spikes และความหน่วงจากการสลับหมวดหมู่
 - **Pre-computed Sales Stats & Persistent Thai Collator**: เรียงลำดับสินค้าขายดีเร็วขึ้น 4–8 เท่าด้วย `thaiCollator = new Intl.Collator('th')` และการแนบสถิติยอดขายล่วงหน้า
 - **Ultra-Fast Modal Check**: ใช้ `ALL_MODAL_SELECTORS` รวบการค้นหา DOM ใน `isAnyModalOpen()` ช่วยให้ปืนสแกนเนอร์ส่งข้อมูลได้ต่อเนื่อง ไร้อาการตกหล่น
@@ -511,31 +482,56 @@ END $$;
 
 ### 8.4 `js/modules/orders.js` (`OrdersModule`)
 - **Lifecycle Implementation**: รองรับ `async init()` (โหลดบิลประวัติการขาย, ผูกปุ่มตัวกรองช่วงเวลา, เรนเดอร์ตาราง) และ `destroy()` (ถอดถอน Disposables)
-- ดึงรายการประวัติการขาย พร้อมตัวกรองตามวันที่และประเภทการชำระเงิน
-- คำนวณยอดขายรวมและกำไรสุทธิรวมตามช่วงเวลาที่เลือก
+- **ระบบตัดแบ่งหน้า (Pagination Engine)**: แสดงผลหน้าละ 25 รายการ (`pageSize = 25`) เช่นเดียวกับ `products.js` พร้อมปุ่ม ย้อนกลับ / ถัดไป และปุ่มตัวเลขหน้า ซ่อนแถบ Pagination อัตโนมัติหากรายการบิล $\le 25$ รายการ ขจัด DOM Lag จากประวัติบิลสะสม
+- **ตัวกรองช่วงเวลาด่วน (Touch-Friendly Date Presets)**:
+  - กำหนดค่าเริ่มต้นเป็น **"วันนี้ (Today)"** เสมอเมื่อเปิดเข้าสู่หน้า Orders
+  - ชุดปุ่มกดสัมผัสขนาด $\ge 36$px: วันนี้, เมื่อวานนี้, สัปดาห์นี้, สัปดาห์ที่แล้ว, เดือนนี้ และกำหนดเอง (Custom Range)
+  - คำนวณช่วงเวลาอิง Local Timezone แม่นยำ ปราศจากปัญหา UTC Date-Shift
+- **แถบสรุปภาพรวมคำนวณจากยอดรวมทั้งหมด (Accurate Summary KPIs Bar)**:
+  - คำนวณยอดขายรวมสุทธิ ต้นทุนรวม และกำไรสุทธิรวม จาก **บิลทั้งหมดที่ผ่านการกรอง (Total Filtered Orders)** ไม่ใช่คำนวณเฉพาะ 25 รายการในหน้าที่กำลังแสดงผล
+  - แสดงจำนวนบิลทั้งหมด บิลสำเร็จ และบิลยกเลิกอย่างชัดเจน
 - แสดงรายละเอียดสลิปใบเสร็จ และสั่งพิมพ์ซ้ำผ่านเครื่องพิมพ์ความร้อน
 - ระบบยกเลิกบิล (`voidOrder()`):
   1. ปรับสถานะบิลใน `orders` เป็น `VOIDED`
   2. วนลูปคืนยอดจำนวนสินค้าใน `sale_items` กลับเข้าฟิลด์ `stock` ในตาราง `products`
   3. บันทึกความเคลื่อนไหวใน `stock_movements` (ประเภท `VOID`)
   4. อัปเดตแคชใน Dexie และกระจายสัญญาณผ่าน `appBus`
+  5. คงการแสดงผลที่หน้าเดิมของผู้ใช้แบบ In-Place โดยไม่กระโดดกลับไปหน้าแรกโดยไม่จำเป็น
 
-### 8.5 `js/modules/stock-in.js` (`StockInModule`)
-- **Lifecycle & Event Guard Implementation**: รองรับ `async init()` (โหลดแคตตาล็อกสินค้าสำหรับ Auto-match, ผูก Event คอนโทรล Staging) และ `destroy()` (เคลียร์ Disposables และ Staging Elements) แยก `bindDOMEvents()` พร้อมการ์ด `_domEventsBound` ป้องกัน Event Listener สะสมซ้อนทับ และแยก `bindLifecycleEvents()` ลงใน `this.disposables` ตามกฎข้อที่ 9, 11 & 12
+### 8.5 `js/modules/stock-in.js` (`StockInModule` - AI Stock-In & Inventory Restock)
+- **Lifecycle & Event Guard Implementation**: รองรับ `async init()` (โหลดแคตตาล็อกสินค้าสำหรับ Auto-match, ผูก Event คอนโทรล Staging) และ `destroy()` (เคลียร์ Disposables, หยุด Voice Engine และกล้องสแกน) แยก `bindDOMEvents()` พร้อมการ์ด `_domEventsBound` ป้องกัน Event Listener สะสมซ้อนทับ และแยก `bindLifecycleEvents()` ลงใน `this.disposables` ตามกฎข้อที่ 9, 11 & 12
 - **In-Memory Product Matching Map**: มี `_productMap = new Map()` ช่วยจับคู่สินค้าเดิมในตารางรับเข้าสต็อกระดับ sub-millisecond ขจัดปัญหา $O(M \times N)$ สแกนซ้ำซ้อน
 - ประมวลผลภาพถ่ายใบเสร็จผ่าน `geminiApi.js` แล้วนำข้อมูลเข้าสู่ Staging
-- **รองรับ 2 มุมมอง (Dual View)**: `renderCards()` สำหรับแท็บเล็ตจอสัมผัส และ `renderTable()` สำหรับจอกว้าง
+- **Dual View & Ergonomic Staging Review (Mathematical Formula Chunking & Zebra Striping)**:
+  - **ระบบสลับสีพื้นหลังแยกรายการ (Alternating Zebra Striping)**: ทั้งการ์ดและตารางสลับสีพื้นหลังระหว่างสีขาว (`bg-white`) และสีนวลกระดาษเรโทร (`bg-[#FAF7F0]`) ช่วยให้สายตาแยกแยะรายการที่อยู่ติดกันได้อย่างรวดเร็ว ชัดเจน ไม่สับสน
+  - **มุมมองการ์ด (Card View - `.stockin-card`)**: ปรับปรุงโครงสร้างตามหลักสรีรศาสตร์การตรวจรับจริง:
+    - **ส่วนบน:** ป้าย `#ลำดับ` สีเหลืองเรโทร (`bg-amber-400`), ป้ายสถานะ (`✨ สินค้าใหม่` / `🔗 เดิม:`), ช่องบาร์โค้ด `🏷️`, รูปสินค้าสี่เหลี่ยมขอบประพร้อมปุ่มถ่ายรูปกล้องด่วน `📷`, และปุ่มลบ `✕` สีแดง
+    - **ส่วนกลาง:** ช่องชื่อสินค้ากว้างเด่นชัด และปุ่มลัด `📁 หมวดหมู่ | 📦 หน่วย`, `🔗 จับคู่สินค้าเดิม`, `🧮 คำนวณ`
+    - **กลุ่มสูตรคณิตศาสตร์ (Grouped Math Equations):**
+      - `กล่อง×หน่วย`: `[-] [กล่อง] [+]` $\times$ `[-] [หน่วย/กล่อง] [+]` $=$ `[รวมชิ้น]`
+      - `ราคา/หน่วย`: `[กล่องละ ฿]` $/$ `[หน่วย/กล่อง]` $=$ `[ทุน/หน่วย ฿]`
+      - `ราคาขาย(กำไร)`: ราคาขายตัวเลขขนาดใหญ่ `[ราคาขาย] ฿` พร้อมกำไรชัดเจน `[+กำไร (Margin%)]`
+    - **แถบล่าง (Footer Bar):** `รวมรับเข้า: [รวมชิ้น] หน่วย | คงเหลือใหม่: [สต็อกใหม่] หน่วย`
+  - **มุมมองตาราง (Table View)**: เรียงคอลัมน์ตามขั้นตอนการคำนวณจริงจากซ้ายไปขวา (`จำนวนกล่อง` $\times$ `หน่วย/กล่อง` $=$ `รวมรับเข้า` | `กล่องละ ฿` $\rightarrow$ `ทุน/หน่วย ฿` | `ราคาขาย ฿` พร้อมป้ายกำไร) พร้อมสลับสีแถว Zebra Striping
+- **Dual-System Product Picker Modal (`#modal-stockin-product-picker`)**:
+  - **🎙️ ค้นหาด้วยเสียง [Voice Search]**: สั่งการด้วยเสียงภาษาไทยผ่าน Web Speech API มี Pulse Animation แบนเนอร์แสดงข้อความเสียงสด
+  - **📷/⚡ สแกนบาร์โค้ด**: รองรับปืนสแกนเนอร์และกล้องถ่ายรูปสแกนบาร์โค้ด 1D/2D
+  - **ค้นหาภาษาไทยตรงตัว (Thai Keyword Preservation)**: แก้ไขไม่ให้คำค้นหาภาษาไทยถูกบิดเบือนด้วย `normalizeThaiBarcode` ค้นพบชื่อสินค้าภาษาไทยได้ทันที
 - ฟังก์ชัน `addManualItem()`: เพิ่มรายการสินค้าเข้า Staging ด้วยตนเอง
 - เมธอด `syncStagingFromDOM()`: ดึงค่าล่าสุดจาก Input บนหน้าจอก่อนกดบันทึก ป้องกันข้อมูลสูญหาย
 - บันทึกสต็อกเข้าสู่ระบบ: อัปเดตสินค้าเดิม หรือเพิ่มสินค้าใหม่ พร้อมบันทึก `stock_movements` (ประเภท `STOCK_IN`)
 - รองรับการคำนวณกรณีสินค้าเดิมมียอดสต็อกติดลบ (เช่น เดิม -2 ชิ้น รับเข้า 10 ชิ้น ยอดใหม่จะเป็น 8 ชิ้น พร้อมบันทึกหมายเหตุ)
 - มีโมดัลยืนยัน (`modal-stockin-confirm`) และโมดัลแจ้งผลสำเร็จ (`modal-stockin-success`)
 
-### 8.6 `js/modules/reports.js` (`ReportsModule`)
-- **Lifecycle Implementation**: รองรับ `async init()` (คำนวณ KPIs, สร้างอินสแตนซ์ Chart.js 4 รูปแบบ) และ `destroy()` (ทำลาย Chart.js Instances เก่าทิ้ง และเคลียร์ Disposables เพื่อป้องกัน Memory Leak ใน Canvas)
-- ประมวลผลสถิติและตัวชี้วัดทางการเงิน (ยอดขาย, ทุน, กำไร, Margin, AOV, จำนวนบิล)
-- สร้างและอัปเดตกราฟ Chart.js: กราฟแนวโน้มยอดขาย, กราฟช่องทางชำระเงิน, กราฟ 10 สินค้าขายดี, กราฟยอดขายตามหมวดหมู่
-- ดึงรายการสินค้าสต็อกต่ำและสินค้าสต็อกติดลบมาแสดงเตือน
+### 8.6 `js/modules/reports.js` (`ReportsModule` - AI-Analytics & Strategy Center)
+- **Lifecycle & Memory Management**: รองรับ `async init()` (คำนวณ KPIs, สร้างอินสแตนซ์ Chart.js 5 รูปแบบ) และ `destroy()` (ทำลาย Chart.js Instances เก่าทิ้ง และเคลียร์ Disposables ป้องกัน Memory Leak ใน Canvas)
+- **สถาปัตยกรรม Bento Overview Hub + Dedicated Detail Panels**:
+  - **Bento Overview Hub (`#dash-bento-overview`)**: สรุปภาพรวมระดับผู้บริหารด้วย 5 การ์ด Bento กะทัดรัด (AI Strategic Insights, Peak Hours & Timeline, Margin vs Volume Matrix, ตรวจสุขภาพคลังสินค้า & สต็อกวิกฤต, และอันดับสินค้า & หมวดหมู่)
+  - **Dedicated Detail Panels (`#dash-detail-container`)**: หน้ารายละเอียดเจาะลึก 4 ส่วน (AI Command, ยอดขายและกราฟแนวโน้ม, เมทริกซ์จัดเกรดสินค้า, และตารางตรวจสต็อกติดลบ/สินค้าเงินจม) พร้อม **ปุ่มตรึงด้านบน `[ 🏠 กลับหน้าหลัก (Home) ]`** เพื่อสลับกลับสู่หน้าภาพรวม Bento ได้ทันที
+- **High-Contrast Dual-Theme Support (`.dash-ai-card`)**: การ์ด AI สไตล์ Command Center สีเข้ม (`#0F172A` / `#061E16`) ให้ตัวหนังสือทอง, เขียว และฟ้า คมชัด อ่านง่าย 100% ทั้งในธีม Classic (Warm Arcade) และ Cyber Emerald
+- **Single-Point Safe Product Edit**: ตารางสต็อกวิกฤตมีปุ่ม `[ ✏️ แก้ไข ]` เพียงจุดเดียวในคอลัมน์จัดการ (ตัดไอคอนดินสอท้ายชื่อสินค้าออก) พร้อมกลไก Multi-Tier Fallback ส่งข้อมูลสินค้าเข้าสู่ `#prod-crud-modal` แม้หน้าแคตตาล็อกยังไม่เคยถูกโหลด
+- **Multi-Color Category Distribution Doughnut Chart**: กราฟสัดส่วนหมวดหมู่สินค้าใช้ `categoryPalette` หลากสีเรโทรเรืองแสง แจกจ่ายสีสดใสให้แต่ละหมวดหมู่แตกต่างกันอย่างชัดเจน ตรงกันระหว่างชิ้นพายบนกราฟและจุดหัวข้อในตาราง
+- **Gemini Flash Failover Pool**: วิเคราะห์กลยุทธ์ยอดขาย สินค้าที่เป็นหัวหอก และรายการสั่งของเข้าสต็อกอัตโนมัติผ่าน Google Gemini Flash API พร้อมระบบ In-Memory Cache ตามช่วงเวลา
 
 ### 8.7 `js/modules/settings.js` (`SettingsModule`)
 - **Lifecycle Implementation**: รองรับ `async init()` (ดึงค่า `app_settings` ล่าสุด, ตั้งค่า Form Fields, ผูก Event คอนโทรล) และ `destroy()` (ถอดถอน Disposables)
@@ -552,15 +548,20 @@ END $$;
 | :--- | :--- |
 | `js/utils/dbHelper.js` | **Resilient Database Layer & Scoped Event Bus**: ฟังก์ชัน `resilientUpdate()`, `resilientInsert()`, `resilientDelete()` รองรับการสลับยิงผ่าน Public Anon Client อัตโนมัติเมื่อ Session หลุดหรือติด RLS, ตรวจจับและตัดฟิลด์ที่ไม่มีในสกีมาทิ้งแบบ Recursive ด้วย `while` loop แล้ว Retry ทันที, รองรับลำดับอาร์กิวเมนต์แบบยืดหยุ่น และมี `appBus.on()` ที่คืนฟังก์ชัน Unsubscribe สำหรับเก็บใน `this.disposables` เพื่อป้องกัน Memory Leak เมื่อโมดูลถูกทำลาย |
 | `js/utils/barcodeHelper.js` | **Thai Barcode Layout Fixer**: ฟังก์ชัน `normalizeThaiBarcode()` และ `getCharFromPhysicalEvent()` แปลงบาร์โค้ดจากปืนสแกนเนอร์ภาษาไทย (ผังปัตตโชติบน Alldocube OS) กลับเป็นเลขอารบิก `0-9` ด้วยการแปลงตรง 1-to-1 (`THAI_PATTACHOTE_REF_MAP`) แก้ปัญหาเครื่องสแกนพ่น `=` แทนเลข `1` และ `ู` แทนเลข `6` รวดเร็ว แม่นยำ และไม่ใช้เงื่อนไขซับซ้อน |
-| `js/utils/audio.js` | **Chiptune Audio Synthesizer**: สังเคราะห์เสียง 8-bit ด้วย Web Audio API เช่น `beep`, `hit`, `coin`, `powerup`, `laser`, `jump`, `error`, `stage_clear`, `plus`, `minus`, `select` พร้อมระบบปรับระดับเสียง (Master Volume Bus & Dynamics Compressor) และจำสถานะเปิด/ปิดเสียง Mute ใน LocalStorage (`toggleAudioMute()`, `isAudioMuted()`) |
+| `js/utils/audio.js` | **Chiptune Audio Synthesizer & Shared AudioContext Provider**: สังเคราะห์เสียง 8-bit ด้วย Web Audio API เช่น `beep`, `hit`, `coin`, `powerup`, `laser`, `jump`, `error`, `stage_clear`, `plus`, `minus`, `select` พร้อมระบบปรับระดับเสียง (Master Volume Bus & Dynamics Compressor), จำสถานะเปิด/ปิดเสียง Mute ใน LocalStorage (`toggleAudioMute()`, `isAudioMuted()`) และทำหน้าที่เป็น **Shared Singleton AudioContext Provider** (`getAudioContext()`) ใช้งานร่วมกับ `thaiSpeechHelper.js` ป้องกันปัญหาแย่ง Audio Hardware Channel บนแท็บเล็ต Android |
 | `js/utils/themeHelper.js` | **Dual-Theme Manager**: จัดการสลับธีมคู่ขนานระหว่าง **`warm-arcade`** (คลาสสิกเรโทร สีครีม-ทอง-ดำ) และ **`cyber-emerald`** (นีออนไซเบอร์ ดำ-เขียวมรกต คอนทราสต์สูง) จัดเก็บการตั้งค่าลง LocalStorage ซิงค์สีแถบเบราว์เซอร์ผ่าน `<meta name="theme-color">` และกระจายเหตุการณ์ `theme:changed` เข้าสู่ Event Bus |
 | `js/utils/uiHelper.js` | **Retro Micro-Loader Overlay**: ยูทิลิตี้แสดงผลหน้าจอโหลดขนาดเล็กแบบ Hardware-Accelerated สไตล์เรโทร (`showLoader()`, `hideLoader()`, `withLoader()`) ป้องกันการกดซ้ำซ้อน และเคลียร์สถานะปลอดภัยใน `finally` block เสมอ |
 | `js/utils/geminiApi.js` | **Gemini Vision Integration**: เชื่อมต่อ Gemini API พร้อมระบบ **Multi-Model Failover Pool** (`gemini-2.5-flash` ➔ `gemini-2.0-flash` ➔ `gemini-1.5-flash`), ควบคุม Timeout ด้วย `AbortController` (15s สำหรับทดสอบ, 45s สำหรับสแกนบิล), และถอด Markdown Code Fences อัตโนมัติ |
 | `js/utils/promptpay.js` | **PromptPay EMVCo QR Generator**: สร้าง String ตามมาตรฐาน EMVCo รองรับเบอร์โทรศัพท์ 10 หลัก และเลขผู้เสียภาษี 13 หลัก พร้อมคำนวณค่า Checksum ตามอัลกอริทึม **CRC16-CCITT (0xFFFF)** อย่างถูกต้อง |
 | `js/utils/thermal-printer.js` | **Thermal Print Formatter**: จัดหน้าสลิปใบเสร็จรับเงินสำหรับกระดาษความร้อน 58 มม. และ 80 มม. มีข้อมูลหัวบิล, ตารางรายการสินค้า, ส่วนลด, VAT, ยอดสุทธิ, เงินสด, เงินทอน, และบาร์โค้ดท้ายบิล |
 | `js/utils/imageUploader.js` | **Camera & Drive Uploader**: บีบอัดภาพถ่ายจากกล้องให้มีขนาดเหมาะสม แปลงเป็น Base64 แล้วส่ง POST ไปยัง Google Apps Script Web App เพื่อจัดเก็บบน Google Drive |
-| `js/utils/gdrive.js` | **Google Drive CDN Linker**: แปลง URL ของไฟล์ใน Google Drive ไปเป็น High-Performance Google CDN Direct Image URL (`https://lh3.googleusercontent.com/d/{FILE_ID}`) ช่วยให้เบราว์เซอร์แคชภาพและโหลดได้รวดเร็วโดยไม่ติด CORS |
-| `js/utils/clipboard.js` | **Clipboard Copy Helper**: ฟังก์ชันช่วยคัดลอกข้อความลง Clipboard พร้อมแสดงกล่องข้อความ Toast แจ้งเตือน |
+| `js/utils/gdrive.js` | **Google Drive CDN Linker**: แปลง URL ของไฟล์ใน Google Drive ไปเป็น High-Performance Google CDN Direct Image URL (`https://lh3.googleusercontent.com/d/{FILE_ID}`) ช่วยให้เบราว์เซอร์และ Service Worker (`sw.js`) แคชภาพลง Cache Storage (`pixel-pos-images-v1`) ได้รวดเร็ว โหลดภาพได้ทันที 100% แม้ในโหมดออฟไลน์ |
+| `js/sync.js` | **Resilient Background Sync & Queue Manager**: บริหารจัดการคิวบิลออฟไลน์ (`offline_orders`) ใน Dexie.js เพื่อรองรับ Local-First Optimistic Checkout (< 50ms), ตรวจจับสัญญาณเน็ต/Heartbeat, ส่งข้อมูลขึ้น Supabase ในเบื้องหลังผ่าน `resilientInsert`/`resilientUpdate` ควบคู่กับการควบคุม Notification Badge, Animated Floating Toast และลงทะเบียน `reg.sync.register('sync-offline-orders')` กับ Service Worker |
+| `js/utils/clipboard.js` | **Clipboard Copy Helper**: ฟังก์ชันช่วยคัดลอกข้อความลง Clipboard พร้อมแสดงกล่องข้อความ Toast แจ้งเตือน ใช้งานเป็นมาตรฐานเดี่ยวทั่วทั้งระบบ |
+| `js/utils/productMatcher.js` | **Intelligent Product Matcher & Bilingual Engine**: เอนจินจับคู่และค้นหาสินค้าส่วนกลางสำหรับ Voice-to-Cart, POS/Products Search และ AI Stock-In OCR รองรับการแปลงคำทับศัพท์ EN <-> TH Cartesian expansion (ให้ความสำคัญกับคำไทยก่อน), Space-Agnostic Substring matching, ระบบป้องกันความขัดแย้งของสี (Color Mismatch Hard Penalty), ระบบความโดดเด่นของแบรนด์หลัก (Brand Dominance) และการตัดคำขยะในบิล (Receipt Noise & Pack Stripper) |
+| `js/utils/wakeLock.js` | **Screen Wake Lock Engine**: จัดการการล็อกหน้าจอไม่ให้ดับ (Screen Wake Lock API) บนแท็บเล็ตแคชเชียร์ขณะใช้งานหน้าขาย POS อัตโนมัติ ป้องกันบลูทูธของปืนสแกนเนอร์หลับ คืนสถานะเมื่อสลับหน้า พร้อมสวิตช์เปิด/ปิด (ON/OFF) และไฟสถานะในหน้า Settings แท็บ *"หน้าขาย POS & ธีมสี"* |
+| `js/utils/storageHelper.js` | **Persistent Storage Provider**: ขอสิทธิ์จัดเก็บข้อมูลถาวร (`navigator.storage.persist()`) เพื่อป้องกันไม่ให้เบราว์เซอร์ล้าง IndexedDB (Dexie) ทิ้งโดยพลการเมื่อพื้นที่เครื่องใกล้เต็ม พร้อมตรวจสอบโควตาการใช้งานพื้นที่ (Storage Quota) ในแท็บ PWA |
+| `js/utils/cameraScanner.js` | **Hardware-Accelerated Camera Barcode Scanner**: ถอดรหัสบาร์โค้ดผ่านกล้องด้วย `window.BarcodeDetector` ระดับฮาร์ดแวร์ของ Chrome Android รวดเร็วและกิน CPU น้อยกว่าไลบรารี JS เดิมกว่า 60% พร้อมระบบ Fallback สู่ `Html5Qrcode` อัตโนมัติ |
 
 ---
 
@@ -607,6 +608,17 @@ END $$;
   - Tag 54: Transaction Amount (ระบุทศนิยม 2 ตำแหน่ง)
   - Tag 58: Country Code (`TH`)
   - Tag 63: Checksum (คำนวณด้วยอัลกอริทึม **CRC16-CCITT** ค่าเริ่มต้น `0xFFFF` ผลลัพธ์เป็นเลขฐานสิบหก 4 หลักพิมพ์ใหญ่)
+
+### 10.6 ตรรกะการจับคู่สินค้าอัจฉริยะแบบสองภาษาและการตรวจจับข้อขัดแย้ง (Intelligent Bilingual Product Matcher)
+- **การใช้งานร่วมกันทั้งระบบ (Universal Matcher Engine)**: ตรรกะใน `js/utils/productMatcher.js` ถูกใช้งานเป็นหัวใจหลักใน 3 ส่วน:
+  1. **Voice-to-Cart (สั่งซื้อด้วยเสียง)**: แปลงเสียงพูดภาษาไทย คำสั่งจำนวน หน่วยนับ และช่วงราคา
+  2. **ช่องค้นหาสินค้า (POS & Products Search)**: ค้นหาคำกลางคำ/ท้ายคำ และคำทับศัพท์
+  3. **AI Stock-In (Gemini Vision OCR)**: นำข้อความที่อ่านได้จากบิลส่งของจริงมาจับคู่กับสินค้าในคลัง
+- **Bilingual & Sound-Alikes Cartesian Expansion**: แปลงคำทับศัพท์ภาษาอังกฤษ (เช่น `ready gojiberry`, `sms`, `3in1`) ให้เป็นคำภาษาไทยก่อน (เช่น `เรดดี้ โกจิเบอร์รี่`, `เอสเอ็มเอส`, `ทรีอินวัน`) สอดคล้องกับคลังสินค้าที่กว่า 90% บันทึกด้วยภาษาไทย
+- **Space-Agnostic Substring Matching**: ค้นหาเจอแม้พิมพ์หรือบันทึกแบบติดกันหรือเว้นวรรคไม่ตรงกัน
+- **Color Conflict Hard Penalty**: ตรวจจับสี (แดง, เขียว, ฟ้า, ฯลฯ) หากบิลระบุสีหนึ่งแต่สินค้าเป็นอีกสีหนึ่ง จะถูกหักคะแนน -50 ทันที ป้องกันการจับคู่สลับสีข้ามสินค้า
+- **Brand Dominance & Conflict Protection**: หากบิลระบุแบรนด์เด่นชัด (เช่น เบอร์ดี้, โค้ก, LM) สินค้าที่มีแบรนด์ตรงกันจะได้โบนัส +18 และสินค้าแบรนด์คู่แข่ง (เช่น เนสกาแฟ, เป๊ปซี่) จะถูกหักคะแนน -50 ทันที
+- **Receipt Noise & Pack Stripper**: ตัดคำขยะในบิลค้าส่ง เช่น ขนาดบรรจุ (0.360L, 100มล.), ขนาดแพ็ค (ลัง 5แพ็คx10ข., หีบ 10 ซอง), ราคาในบิล (10 บ., 3 บ.), ดอกจัน และเว้นวรรคคำอัตโนมัติ
 
 ---
 
@@ -734,94 +746,60 @@ END $$;
 
 ---
 
-## 15. กฎและข้อบังคับสำคัญสำหรับผู้พัฒนาและ AI (Critical Rules & Directives)
+---
 
-> ⚠️ **คำเตือนสำหรับ AI Agents และผู้พัฒนาซอฟต์แวร์ทุกคน:** กฎทั้ง 10 ข้อด้านล่างนี้เป็นข้อบังคับเด็ดขาด (Mandatory Rules) ห้ามละเมิดเด็ดขาดไม่ว่าในกรณีใดๆ
+## 15. ระบบเสียงพูดแจ้งเตือนและคิดเงินภาษาไทย (Thai Voice Checkout Announcement)
 
-### 📌 กฎข้อที่ 1: กฎการคืนโฟกัสช่องกรอก Barcode (Barcode Input Focus Rule)
-- หน้าจอที่มีการสแกนบาร์โค้ด (`#pos-barcode-input`, `#prod-search-input`, หรือหน้า Stock-In) **จะต้องส่งโฟกัสกลับไปที่ช่องกรอกบาร์โค้ดทุกครั้ง** เมื่อสิ้นสุด flow การทำงานบน Pop-up / Modal / Button:
-  - เมื่อจบ flow การ **Re-new Barcode** (จับคู่บาร์โค้ดใหม่ให้กับสินค้าเดิม)
-  - เมื่อจบ flow การ **+ เพิ่มสินค้าใหม่** (Product CRUD Modal) ทั้งกรณีกดยืนยันสำเร็จ หรือกดยกเลิก/ปิด Modal
-  - เมื่อปิด Modal แจ้งเตือนบาร์โค้ดไม่พบ (`barcode-not-found-modal`) หรือ Modal ยืนยันใดๆ
-  - เมื่อสแกนและเพิ่มสินค้าลงตะกร้าในหน้าขาย (POS)
-  - เมื่อเสร็จสิ้นการชำระเงิน หรือเมื่อกดล้างตะกร้าสินค้า
-  - เมื่อกดย้อนกลับจากหน้าชำระเงิน (`views/payment.html`) กลับมายังหน้าขายหลัก (`views/pos.html`)
-- **รูปแบบคำสั่ง:** ต้องหน่วงเวลาเล็กน้อยเพื่อให้ DOM render และ Animation เสร็จสมบูรณ์:
-  ```javascript
-  setTimeout(() => {
-    const input = document.getElementById('pos-barcode-input') || document.getElementById('prod-search-input');
-    if (input) input.focus();
-  }, 100);
-  ```
+ระบบเสียงพูดแจ้งเตือนหน้าร้าน (Thai Voice Engine) ได้รับการออกแบบเพื่อสร้างประสบการณ์คิดเงินที่มืออาชีพและลดข้อผิดพลาดในการรับ-ทอนเงิน โดยอ่านยอดเงิน ยอดรับชำระ และเงินทอนเป็นภาษาไทยอัตโนมัติทันทีที่ปิดบิล
 
-### 📌 กฎข้อที่ 2: กฎความเสถียรฐานข้อมูล Dual-Client Fallback (Resilient Database Rule)
-- **ห้าม** ยิงคำสั่ง `supabase.from('...').update/insert/delete` ตรงๆ โดยไม่มีระบบ Fallback สำรองเด็ดขาด
-- **ข้อบังคับ:** ทุกการเขียนฐานข้อมูลต้องเรียกผ่าน Helper กลางใน `js/utils/dbHelper.js` เสมอ:
-  - `resilientUpdate(supabase, table, id, payload)`
-  - `resilientInsert(supabase, table, payload)`
-  - `resilientDelete(supabase, table, id)`
-- ตัวช่วยเหล่านี้จะสลับไปยิงผ่าน `window.publicSupabase` (Anon Client) อัตโนมัติหากติด RLS หรือ Session หลุด และตรวจจับคอลัมน์ที่ไม่ตรงกับสกีมา (`PGRST204`) ด้วย `while` loop เพื่อตัดทิ้งแล้ว Retry ทันทีจนกว่าจะสำเร็จ (รองรับกรณีมีคอลัมน์เกินหลายตัวพร้อมกัน)
+### จุดเด่นของระบบเสียงประกาศ
+1. **คลังเสียงมาตรฐาน 25 ไฟล์ (Pristine Voice Assets):**
+   - ใช้เสียง **Voice: Aoede** โทนผู้หญิงอายุ 25-30 ปี สดใส สุภาพ และน่าเชื่อถือ
+   - สังเคราะห์ไฟล์เสียงทั้งหมดใน **Take เดียว (Single Batch Request)** โดยใช้แท็ก SSML ` <break time="1.5s"/> ` คั่นระหว่างคำ เพื่อรักษาความคงที่ของระดับเสียง (Pitch), ความดัง (Volume), และจังหวะพูด (Cadence) ให้เป็นเนื้อเดียวกัน 100%
+   - ผ่านกระบวนการ **Pristine Tail Trimming & C2PA Stripping**: ตัดก้อนขยะ Binary Provenance Metadata ท้ายไฟล์ดิบออกสนิท พร้อมเกลี่ยสัญญาณด้วย Linear Fade-In/Out 6ms สู่แอมพลิจูด 0 ปราศจากเสียงซ่าและเสียงคลิกดิจิทัลท้ายคำทุกไฟล์ (โดยเฉพาะคำว่า "แสน" `unit_100000.wav`)
+2. **การแปลงตัวเลขและไวยากรณ์ภาษาไทย (`js/utils/thaiSpeechHelper.js`):**
+   - รองรับตัวเลขตั้งแต่หลักหน่วยจนถึงหลักแสน (>= 100,000) ต่อท้ายด้วย `unit_100000.wav` และกระจายเศษส่งต่อหลักหมื่นและพันอย่างถูกต้อง
+   - กฎการอ่านคำว่า **"เอ็ด"** (`num_11.wav`), **"ยี่สิบ"** (`num_20.wav`), และ **"สิบ"** (`num_10.wav`) ตามหลักภาษาไทยที่ถูกต้อง
+   - รองรับการอ่านเศษสตางค์ (`unit_satang.wav`) เมื่อยอดเงินมีเศษทศนิยม
+3. **Web Audio Gapless Engine:**
+   - Preload และแคชไฟล์เสียงทั้ง 25 ไฟล์ลงใน `Map<string, AudioBuffer>` พร้อม Versioning Query `?v=${APP_VERSION}` ใน `sw.js` ป้องกันปัญหาแคชค้างและตัดปัญหาความหน่วงของเครือข่าย
+   - ทำการร้อยเรียงเสียงด้วย Web Audio API แบบ Micro-crossfade ต่อเนื่องไร้รอยต่อ
+   - หยุดคิวเสียงทันทีเมื่อมีการเปิดบิลใหม่ (`stopVoice()`) และเคารพการตั้งค่าปิดเสียง (Sound Mute / Voice Toggle)
+4. **เครื่องมือทดสอบและเปรียบเทียบเสียง (`tests/voice_comparator.html`):**
+   - หน้าทดสอบเฉพาะทางสำหรับกดฟังเสียงทีละคำทั้ง 25 คำ
+   - ทดสอบจำลองการคิดเงินจริง (Exact Cash, Cash with Change, Split QR + Cash, เศษสตางค์)
 
-### 📌 กฎข้อที่ 3: กฎลำดับพารามิเตอร์และการเปรียบเทียบ ID (Parameter & ID Safety Rule)
-1. **ลำดับพารามิเตอร์ของ `resilientUpdate`:**
-   - มาตรฐานหลัก: `resilientUpdate(supabase, table, id, payload)` (ส่ง `id` ก่อน `payload` เสมอ)
-2. **การเปรียบเทียบ ID ข้ามโมดูล:**
-   - **ห้าม** ใช้ `a === b` ตรงๆ กับ ID ที่มาจาก Supabase และ IndexedDB เพราะชนิดข้อมูลอาจเป็น `String`, `Number`, หรือ `BigInt`
-   - **ข้อบังคับ:** ต้องใช้ `safeIdCompare(a, b)` หรือแปลงด้วย `safeNumberId(id)` จาก `dbHelper.js` เสมอ
+## 16. กฎและข้อบังคับสำคัญของระบบ (Critical System Rules Summary)
 
-### 📌 กฎข้อที่ 4: กฎระบบดักจับบาร์โค้ดฮาร์ดแวร์และแก้ปัญหาผังแป้นพิมพ์ไทย (Hardware Barcode Engine & Thai Auto-Correction)
-1. **In-Memory Capture ผ่าน Physical Keys (`e.code`):**
-   - ดักจับเหตุการณ์ที่ Capture Phase (`window.addEventListener('keydown', ..., true)`)
-   - สกัดตัวเลขจาก `e.code.startsWith('Digit')` และ `e.code.startsWith('Numpad')` ไม่ให้อิงกับภาษาแป้นพิมพ์ของระบบปฏิบัติการ
-   - เมื่อโฟกัสอยู่ที่ `#pos-barcode-input` ให้สั่ง `e.preventDefault()` ป้องกัน DOM Repaint Lag และอักขระไทยหลุดเข้า DOM
-2. **ระบบความเร็วปรับตัวได้ (Adaptive Cadence Dual-Threshold):**
-   - ใช้ `CADENCE_WAKEUP = 200ms` (180ms – 220ms) สำหรับ 1-3 ตัวแรกช่วงหัวอ่าน Bluetooth ตื่นจากโหมด Standby และ `CADENCE_FAST = 120ms` (100ms – 120ms) สำหรับตัวถัดไป เพื่อรองรับโหมด Low Rate และป้องกันบัฟเฟอร์หลุดเมื่อยิงบาร์โค้ดยาว 12–14 หลัก
-3. **Fallback Thai Normalization (Dual-Layout):**
-   - ทุกจุดที่รับ Input บาร์โค้ดแบบ Manual หรือ Paste รวมถึงช่องค้นหาสินค้า ต้องผ่าน `normalizeThaiBarcode(rawInput)` ซึ่งรองรับทั้งผังปัตตโชติ (Alldocube OS) และผังเกษมณีเสมอ
+> ⚠️ **Single Source of Truth สำหรับ AI Agents และผู้พัฒนา:** รายละเอียด พารามิเตอร์ สคริปต์ และโค้ดตัวอย่างของกฎบังคับทั้ง 19 ข้อ ถูกรวบรวมไว้ที่ไฟล์ [AGENTS.md](file:///e:/xampp/htdocs/myproject/about_pos/AGENTS.md) เพื่อป้องกันความขัดแย้งของข้อมูล โดยมีสาระสำคัญสรุปย่อดังนี้:
 
-### 📌 กฎข้อที่ 5: กฎการคืนสถานะปุ่มก่อนแสดง Dialog (Non-Blocking UI Before Alert Rule)
-- คำสั่ง `alert()` หรือ `confirm()` ของเบราว์เซอร์เป็น Synchronous Blocking Call ที่จะหยุดการทำงานของ JavaScript ทันที
-- **ข้อบังคับ:** ก่อนเรียก `alert(...)` หรือ `confirm(...)` แจ้งเตือนความสำเร็จหรือล้มเหลว **ต้องคืนสถานะปุ่มกด (Disabled = false และเปลี่ยนข้อความปุ่มกลับเป็นปกติ) ก่อนเสมอ**
+| กฎข้อที่ | ชื่อกฎ (Rule Title) | สาระสำคัญและข้อกำหนดบังคับ (Key Directive) |
+|:---:|---|---|
+| **1** | **Barcode Input Focus Rule** | คืนโฟกัสกลับช่องบาร์โค้ดเสมอ (`#pos-barcode-input` / `#prod-search-input`) หลังจบ Modal/Action ทุกชนิด |
+| **2** | **Resilient Database Rule** | ห้ามเขียน Supabase ตรงๆ ต้องผ่าน `dbHelper.js` (`resilientUpdate`, `atomicAdjustStock`, ฯลฯ) พร้อม Fallback 5 ชั้น |
+| **3** | **Parameter & ID Safety Rule** | ส่ง `id` ก่อน `payload` ใน `resilientUpdate` เสมอ และเปรียบเทียบ ID ด้วย `safeIdCompare(a, b)` |
+| **4** | **Hardware Barcode Engine & Thai Auto-Correction** | จับ Physical Key (`e.code`), แก้ไขแป้นพิมพ์ไทยปัตตโชติ/เกษมณี, และใช้ Dual Cadence (200ms / 120ms) |
+| **5** | **Non-Blocking UI Before Alert Rule** | ต้องปลดสถานะปุ่มกด (`disabled = false`) คืนข้อความปกติก่อนเรียก `alert()` หรือ `confirm()` เสมอ |
+| **6** | **Stock Movements Schema Rule** | ตาราง `stock_movements` มีเฉพาะคอลัมน์มาตรฐาน ห้ามส่ง `ref_invoice_no` หรือฟิลด์นอกสกีมาเด็ดขาด |
+| **7** | **Flexible POS & Payment Layout Mandate** | ปรับ Layout หน้า POS/Payment ได้ยืดหยุ่นเพื่อ UX/UI รองรับ 2 Profile อุปกรณ์ ห้าม `overflow-hidden` ในหน้าอื่น |
+| **8** | **Unified On-Screen Numpad & Zero-Replace** | รองรับการสลับเป้าหมาย cash/discount, ป้อนเลข 1-9 แทนที่ 0 ทันที, และใส่ `inputmode="none"` บล็อก Virtual Keyboard |
+| **9** | **Centralized Cache Invalidation & Lifecycle** | ห้ามแก้เลขเวอร์ชันด้วยมือ รัน `npm run bump` ทุกครั้งที่มีการแก้โค้ด และจัดการ `destroy()` ป้องกัน Memory Leak |
+| **10** | **Strict No-Secret Exposing Rule** | ห้ามใส่ API Key, Service Role Key หรือ Token ในโค้ดหรือ Markdown เก็บใน `app_settings` เท่านั้น |
+| **11** | **Method Overwrite Prevention & Event Guard** | ห้ามประกาศเมธอดชื่อซ้ำในคลาสเดียวกัน และแยก Static DOM Events ออกจาก Lifecycle Events |
+| **12** | **Thai Voice Announcement & Audio Chaining** | อ่านยอดเงิน/เงินทอนภาษาไทยอัตโนมัติแบบ Gapless Web Audio, เรียงไวยากรณ์ถูกต้อง, ไม่ชนกับเสียง 8-bit SFX |
+| **13** | **Thai Voice-to-Cart Engine & PWA Permission** | รับคำสั่งเสียงภาษาไทยเพิ่มสินค้าลงตะกร้าพร้อม Visualizer สองระดับ, จับคู่ 3-Tier Priority, แสดง variations สูงสุด 10 การ์ด |
+| **14** | **Inactive Inventory Auto-Zero & Filter Rules** | เมื่อปิดการขายสินค้าให้รีเซ็ตสต็อกเป็น 0 อัตโนมัติ และหน้าแคตตาล็อกเริ่มต้นที่ตัวกรอง "เปิดขาย" เสมอ |
+| **15** | **Unified Icon Standard & Unused Files** | ใช้ Font Awesome 6 Free (Offline 100%) ร่วมกับ Custom Pixel Art และย้ายไฟล์เก่าเข้า `unused_files/` |
+| **16** | **Stock-In Staging & Payment Ergonomics** | หมุนภาพสลิปบน Canvas พิกเซลจริงก่อนส่ง AI, แสดง Accordion และ Zebra Striping, พร้อมกรอบสีเน้นโหมดชำระเงิน |
+| **17** | **Intelligent Bilingual Product Matcher** | ค้นหาแบบ Space-Agnostic, ให้คะแนนแบรนด์ตรงกัน, หักแต้มสีขัดแย้ง -50 คะแนน, และตัดคำขยะในบิล |
+| **18** | **Store Barcode Absolute Priority Mandate** | บาร์โค้ดเดิมในร้านคือ Priority สูงสุด ห้ามไม่ให้ OCR/AI หรือ Article No. ห้าง เขียนทับบาร์โค้ดเดิมเด็ดขาด |
+| **19** | **Dual-Device Ergonomics & Kiosk Keyboard Lock** | รองรับ Tablet 1024x640 และ Mobile 1260x2800, ใช้ปุ่ม Toggle เดี่ยว 🔫 / ⌨️ ล็อกและปลด Virtual Keyboard |
 
-### 📌 กฎข้อที่ 6: กฎความสอดคล้องของตาราง Stock Movements (Stock Movements Schema Rule)
-- สกีมาของตาราง `stock_movements` ในฐานข้อมูล Supabase ประกอบด้วยคอลัมน์:
-  `id`, `product_id`, `type`, `quantity`, `unit_cost`, `note`, `created_at`
-- **ห้าม** ส่งฟิลด์ที่ไม่มีอยู่ในตาราง เช่น `ref_invoice_no` เข้าไปเป็นคอลัมน์เดี่ยวเด็ดขาด
-- หากมีข้อมูลเลขอ้างอิงเอกสารหรือชื่อผู้ขาย ให้ผนวกเข้าในฟิลด์ `note` เช่น:
-  ```javascript
-  note: `รับเข้า ${inQty} ชิ้น จาก ${supplier} [เลขที่เอกสาร: ${invoiceNo}]`
-  ```
-
-### 📌 กฎข้อที่ 7: กฎการออกแบบและปรับแต่ง Layout หน้าขาย POS & Payment ยืดหยุ่นเพื่อ UX/UI (Flexible POS & Payment Layout Mandate)
-- **การปรับเปลี่ยน Layout เพื่อ UX/UI:** โครงสร้าง Layout หน้า POS และ Payment รองรับการปรับเปลี่ยนได้อย่างยืดหยุ่นเมื่อต้องการยกระดับ UX/UI หรือรองรับฟีเจอร์ใหม่
-- **Touch-Friendly & Usability:** สามารถปรับเพิ่มความสูง ขนาดปุ่มสัมผัส (เช่น แถบหมวดหมู่สินค้า `#pos-category-tabs-container` เพิ่มความสูง 80% ให้กดง่ายขึ้น) และจัดแต่งสไตล์ Scrollbar ให้กลมกลืนกับ Theme
-- **Fast Checkout Focus:** คงความสะดวกรวดเร็วในการปิดบิล และการเข้าถึงปุ่มสำคัญได้อย่างแม่นยำ
-
-### 📌 กฎข้อที่ 8: กฎระบบแป้นตัวเลขรวมศูนย์ (Unified On-Screen Numpad & Zero-Replace Protection)
-- **การสลับเป้าหมาย (Active Target Routing):** แผง Numpad ในหน้าชำระเงินรองรับทั้งการกรอกเงินสด (`cash`) และส่วนลด (`discount`)
-- **การแก้ปัญหาเลข 0 ค้าง (Zero-Replace Protection):** หากค่าในช่องกรอกเป็น `0` หรือเป็นค่าว่าง การกดเลข 1-9 จะต้องเข้าแทนที่เลข `0` ทันที
-- **การบล็อกคีย์บอร์ดเสมือนของระบบ (Soft-Keyboard Suppression):** ช่องกรอกที่ใช้ปืนสแกนหรือ Numpad ของแอป ต้องใส่ `inputmode="none"` เสมอ เพื่อป้องกัน Virtual Keyboard ของ Android เด้งขึ้นมาบดบังหน้าจอ
-
-### 📌 กฎข้อที่ 9: กฎการป้องกันเบราว์เซอร์แคชและวงจรชีวิตโมดูล (Centralized Cache Invalidation & Module Lifecycle Mandate)
-- **ข้อบังคับการปรับเวอร์ชัน (Cache Invalidation):** ห้ามแก้ไขเลขเวอร์ชันใน `js/config.js` หรือ `sw.js` ด้วยมือโดยเด็ดขาด ทุกครั้งที่มีการแก้ไขไฟล์ HTML, CSS, หรือ JS แม้เพียงตัวอักษรเดียว **ต้องรันคำสั่ง `npm run bump` ผ่าน Terminal ทุกครั้ง** (สคริปต์จะทำการอัปเดตทั้ง `APP_VERSION` ใน `js/config.js` และ `CACHE_NAME` ใน `sw.js` ให้ตรงกันแบบ Atomic เพื่อทำลาย Cache เก่าอย่างสมบูรณ์แบบ)
-- **ข้อบังคับวงจรชีวิตโมดูล (Lifecycle & Disposables):**
-  - ทุกโมดูลหน้าจอต้องมี `this.disposables = []`, เมธอด `async init()`, และเมธอด `destroy()`
-  - ทุกการดักฟัง `appBus.on(...)` หรือ DOM Events ต้องเก็บฟังก์ชัน Unsubscribe ลงใน `this.disposables` เสมอ และต้องสลับหน้าผ่าน `setActiveModule()` เพื่อสั่งทำลายโมดูลเดิม ป้องกันการรั่วไหลของหน่วยความจำ (Memory Leak) บนแท็บเล็ตแคชเชียร์
-
-### 📌 กฎข้อที่ 10: กฎความปลอดภัยและการจัดการข้อมูลความลับ (Strict No-Secret Exposing Rule)
-- **ห้าม** ใส่ข้อมูลความลับ เช่น API Keys (เช่น Gemini API Key), Database Password, Supabase Service Role Key, หรือ Token ลงในซอร์สโค้ดฝั่ง Client (`index.html`, `js/*`) หรือเอกสาร Markdown (`AGENTS.md`, `README.md`) เด็ดขาด
-- การตั้งค่า Gemini API Key, Google Apps Script Web App URL หรือบัญชี PromptPay จะต้องถูกบันทึกลงในตาราง `app_settings` บน Supabase / IndexedDB ผ่านหน้าจอตั้งค่าระบบ (`views/settings.html`) พร้อมการทำ Security Masking เสมอ
-
-### 📌 กฎข้อที่ 11: กฎการป้องกันการประกาศเมธอดซ้ำซ้อนและการแยกการผูก Event (Method Overwrite Prevention & Static DOM Event Guard Rule)
-1. **ห้ามมีเมธอดชื่อซ้ำในคลาสเดียวกันเด็ดขาด (Strict Single Method Declaration):**
-   - ก่อนบันทึกไฟล์หรือ refactor โค้ด ต้องตรวจสอบว่าไม่มีการประกาศเมธอดเดิมซ้ำสองจุด ซึ่งจะทำให้ Prototype เมธอดหลังเขียนทับเมธอดแรกเงียบๆ
-2. **การแยกประเภท Event ระหว่าง Static DOM และ Dynamic Lifecycle (Dual-Tier Event Binding):**
-   - **Static DOM Events:** ปุ่มกด, ฟอร์ม submit, input ที่อยู่ใน HTML ของวิว ให้แยกไว้ในเมธอด `bindDOMEvents()` และครอบด้วยตัวแปรป้องกัน `if (this._domEventsBound) return; this._domEventsBound = true;` ผูกเพียงครั้งเดียวตลอดอายุแอป
-   - **Lifecycle Events:** การดักฟัง `appBus.on(...)` หรือ `window.addEventListener('keydown', ...)` ให้แยกไว้ใน `bindLifecycleEvents()` และต้องเก็บฟังก์ชัน Unsubscribe ลงใน `this.disposables` เสมอ เพื่อให้เมธอด `destroy()` ปลดออกได้อย่างสะอาดหมดจดเมื่อสลับไปหน้าอื่น
+> 📖 อ่านรายละเอียดฉบับเต็มของกฎทั้งหมดได้ที่เอกสาร: **[AGENTS.md (Section 2) — Critical Rules & Directives](file:///e:/xampp/htdocs/myproject/about_pos/AGENTS.md#2-กฎและคำสั่งบังคับระดับวิกฤต-critical-rules--directives)**
 
 ---
 
-## 16. คู่มือการติดตั้งและการรันระบบ (Setup & Deployment Guide)
+## 17. คู่มือการติดตั้งและการรันระบบ (Setup & Deployment Guide)
 
 ### ความต้องการของระบบ (Prerequisites)
 - **Node.js**: เวอร์ชัน 18.0.0 หรือสูงกว่า
@@ -855,20 +833,39 @@ npm run build:css
    };
    ```
 
-### 4. การติดตั้งและเปิดใช้งาน PWA
+### 4. การติดตั้งและเปิดใช้งาน PWA (Progressive Web App)
 - เปิดเว็บเบราว์เซอร์บนมือถือหรือคอมพิวเตอร์ไปยัง URL ของระบบ
-- กดปุ่ม **"ติดตั้งแอป (Install App)"** ที่แถบ Header หรือผ่านเมนูของเบราว์เซอร์
+- กดปุ่ม **"ติดตั้งแอป (Install App)"** ที่แถบ Header หรือผ่านแท็บ *"ติดตั้งแอป PWA"* ในหน้า Settings
 - แอปจะถูกติดตั้งเป็น Standalone Application ใช้งานได้เสมือนโปรแกรม Desktop หรือ Mobile App เต็มรูปแบบ
+- **ฟีเจอร์ระดับ Native PWA บน Android Chrome:**
+  - **Screen Wake Lock:** ป้องกันหน้าจอดับสนิทขณะประจำการหน้าขาย POS อัตโนมัติ (ปรับแต่ง On/Off ได้ในแท็บ *"หน้าขาย POS & ธีมสี"*) ป้องกันหัวอ่านบลูทูธตัดการเชื่อมต่อ
+  - **Persistent Storage:** ป้องกันระบบปฏิบัติการแอบล้างข้อมูลแคช IndexedDB (Dexie) ทิ้งเมื่อความจุเครื่องเหลือน้อย
+  - **Native Hardware BarcodeDetector:** ถอดรหัสบาร์โค้ดผ่านกล้องด้วยชิปเร่งความเร็วฮาร์ดแวร์ใน Chrome Android โดยตรง ประหยัดแบตเตอรี่และกิน CPU ลดลงกว่า 60%
+  - **Background Sync:** ผลักบิลที่ค้างในคิวออฟไลน์ขึ้น Supabase เบื้องหลังอัตโนมัติทันทีที่สัญญาณเน็ตฟื้นตัว
+  - **Orientation Support:** กำหนด `"orientation": "any"` ใน `manifest.json` รองรับทั้งแท็บเล็ตแคชเชียร์แนวนอน (1024×640 px) และสมาร์ตโฟนแนวตั้ง (1260×2800 px) ตามกฎข้อที่ 19
 
 ### 5. การปรับเวอร์ชันและทำลายแคชอัตโนมัติ (Version Bump & Cache Busting)
-เมื่อมีการแก้ไขไฟล์โค้ดของระบบ ต้องรันคำสั่ง bump เวอร์ชันเพื่อให้อัปเดตทั้ง `APP_VERSION` ใน `js/config.js` และ `CACHE_NAME` ใน `sw.js` พร้อมกันแบบ Atomic:
+เมื่อมีการแก้ไขไฟล์โค้ดของระบบ ต้องรันคำสั่ง bump เวอร์ชันเพื่อให้อัปเดตทั้ง `APP_VERSION` ใน `js/config.js`, `CACHE_NAME` ใน `sw.js`, module query `?v=` ใน `index.html`, และ Badge เวอร์ชันใน Footer ของ `views/settings.html` พร้อมกันแบบ Atomic:
 ```bash
-# อัปเดตเลขเวอร์ชันตามเวลาปัจจุบันอัตโนมัติ (เช่น v1.2.091918)
+# อัปเดตเลขเวอร์ชันตามเวลาปัจจุบันอัตโนมัติ (เช่น v1.2.100110)
 npm run bump
 
 # หรือระบุเลขเวอร์ชันที่ต้องการเจาะจง:
-npm run bump -- 1.2.091918
+npm run bump -- 1.2.100110
 ```
+
+### 6. การสร้างและตรวจสอบแผนภาพสถาปัตยกรรมระบบ (Interactive Architecture Diagram)
+ระบบรองรับการแสดงแผนภาพสถาปัตยกรรมแบบ Visual Interactive HTML 4 ลำดับชั้น (Tier 1–4) ผ่านเครื่องมือ Archify:
+- **ไฟล์แผนภาพผลลัพธ์:** [pixel-pos-system.html](file:///e:/xampp/htdocs/myproject/about_pos/.archify/pixel-pos-system.html)
+- **เรียกใช้งานผ่าน AI Slash Command:** พิมพ์คำสั่ง `/archify` ในหน้าแชทเพื่อเรียกใช้งานสกิล
+- **คำสั่งจัดการผ่าน Terminal:**
+  ```bash
+  # ตรวจสอบความสมบูรณ์ของแผนภาพสถาปัตยกรรม
+  npm run archify -- check .archify/pixel-pos-system.html
+
+  # เรนเดอร์แผนภาพสถาปัตยกรรมใหม่จากไฟล์สเปก JSON
+  npm run archify -- render architecture .archify/pixel-pos.architecture.json .archify/pixel-pos-system.html --quality showcase
+  ```
 
 ---
 
