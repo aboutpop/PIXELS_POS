@@ -1,0 +1,850 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Pixel POS & AI Inventory - Full Architecture & Component Map (v1.4.20102026)",
+    "output": ".archify/pixel-pos-system.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "shell",
+      "type": "frontend",
+      "label": "SPA Core Shell",
+      "sublabel": "index.html + Header Nav",
+      "tag": "Tier 1: Shell",
+      "icon": "frontend",
+      "pos": [
+        25,
+        530
+      ],
+      "size": [
+        125,
+        60
+      ]
+    },
+    {
+      "id": "view-pos",
+      "type": "frontend",
+      "label": "POS Cashier View",
+      "sublabel": "views/pos.html",
+      "tag": "Tier 2: Page",
+      "icon": "frontend",
+      "pos": [
+        190,
+        60
+      ],
+      "size": [
+        145,
+        62
+      ]
+    },
+    {
+      "id": "view-payment",
+      "type": "frontend",
+      "label": "Payment Checkout",
+      "sublabel": "views/payment.html",
+      "tag": "Tier 2: Page",
+      "icon": "frontend",
+      "pos": [
+        190,
+        200
+      ],
+      "size": [
+        145,
+        78
+      ]
+    },
+    {
+      "id": "view-products",
+      "type": "frontend",
+      "label": "Product Catalog",
+      "sublabel": "views/products.html",
+      "tag": "Tier 2: Page",
+      "icon": "frontend",
+      "pos": [
+        190,
+        430
+      ],
+      "size": [
+        145,
+        62
+      ]
+    },
+    {
+      "id": "view-categories",
+      "type": "frontend",
+      "label": "Category Manager",
+      "sublabel": "views/categories.html",
+      "tag": "Tier 2: Page",
+      "icon": "frontend",
+      "pos": [
+        190,
+        540
+      ],
+      "size": [
+        145,
+        56
+      ]
+    },
+    {
+      "id": "view-stockin",
+      "type": "frontend",
+      "label": "AI Stock-In View",
+      "sublabel": "views/stockin.html",
+      "tag": "Tier 2: Page",
+      "icon": "frontend",
+      "pos": [
+        190,
+        650
+      ],
+      "size": [
+        145,
+        62
+      ]
+    },
+    {
+      "id": "view-orders",
+      "type": "frontend",
+      "label": "Sales Orders View",
+      "sublabel": "views/orders.html",
+      "tag": "Tier 2: Page",
+      "icon": "frontend",
+      "pos": [
+        190,
+        770
+      ],
+      "size": [
+        145,
+        56
+      ]
+    },
+    {
+      "id": "view-dashboard",
+      "type": "frontend",
+      "label": "Dashboard Hub",
+      "sublabel": "views/dashboard.html",
+      "tag": "Tier 2: Page",
+      "icon": "frontend",
+      "pos": [
+        190,
+        880
+      ],
+      "size": [
+        145,
+        56
+      ]
+    },
+    {
+      "id": "view-settings",
+      "type": "frontend",
+      "label": "System Settings",
+      "sublabel": "views/settings.html",
+      "tag": "Tier 2: Page",
+      "icon": "frontend",
+      "pos": [
+        190,
+        980
+      ],
+      "size": [
+        145,
+        56
+      ]
+    },
+    {
+      "id": "numpad-calc",
+      "type": "frontend",
+      "label": "Virtual Numpad",
+      "sublabel": "#pos-cash-calculator",
+      "tag": "Tier 3: Keypad",
+      "icon": "frontend",
+      "pos": [
+        410,
+        40
+      ],
+      "size": [
+        150,
+        50
+      ]
+    },
+    {
+      "id": "modal-barcode-404",
+      "type": "frontend",
+      "label": "Barcode Not Found",
+      "sublabel": "#barcode-not-found",
+      "tag": "Tier 3: Modal",
+      "icon": "frontend",
+      "pos": [
+        410,
+        110
+      ],
+      "size": [
+        150,
+        50
+      ]
+    },
+    {
+      "id": "modal-renew-code",
+      "type": "frontend",
+      "label": "Re-new Barcode Modal",
+      "sublabel": "#modal-barcode-match",
+      "tag": "Tier 3: Modal",
+      "icon": "frontend",
+      "pos": [
+        600,
+        110
+      ],
+      "size": [
+        150,
+        50
+      ]
+    },
+    {
+      "id": "drawer-qr",
+      "type": "frontend",
+      "label": "PromptPay QR Drawer",
+      "sublabel": "EMVCo PromptPay QR",
+      "tag": "Tier 3: Drawer",
+      "icon": "frontend",
+      "pos": [
+        410,
+        180
+      ],
+      "size": [
+        150,
+        50
+      ]
+    },
+    {
+      "id": "drawer-split",
+      "type": "frontend",
+      "label": "Split Payment Drawer",
+      "sublabel": "#pos-split-container",
+      "tag": "Tier 3: Drawer",
+      "icon": "frontend",
+      "pos": [
+        410,
+        250
+      ],
+      "size": [
+        150,
+        50
+      ]
+    },
+    {
+      "id": "modal-receipt",
+      "type": "frontend",
+      "label": "Success Receipt Slip",
+      "sublabel": "#pos-success-modal",
+      "tag": "Tier 3: Modal",
+      "icon": "frontend",
+      "pos": [
+        410,
+        320
+      ],
+      "size": [
+        150,
+        50
+      ]
+    },
+    {
+      "id": "thermal-engine",
+      "type": "frontend",
+      "label": "Thermal Printer Engine",
+      "sublabel": "Web BT ESC/POS Driver",
+      "tag": "Tier 3: Hardware",
+      "icon": "frontend",
+      "pos": [
+        600,
+        320
+      ],
+      "size": [
+        150,
+        50
+      ]
+    },
+    {
+      "id": "modal-prod-crud",
+      "type": "frontend",
+      "label": "Product CRUD Modal",
+      "sublabel": "#prod-crud-modal",
+      "tag": "Tier 3: Modal",
+      "icon": "frontend",
+      "pos": [
+        410,
+        430
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "modal-camera",
+      "type": "frontend",
+      "label": "Live Camera Viewfinder",
+      "sublabel": "900x900 Camera Crop",
+      "tag": "Tier 3: Modal",
+      "icon": "frontend",
+      "pos": [
+        600,
+        430
+      ],
+      "size": [
+        150,
+        50
+      ]
+    },
+    {
+      "id": "staging-table",
+      "type": "frontend",
+      "label": "Staging & AI Audit",
+      "sublabel": "Stock Bill Staging",
+      "tag": "Tier 3: Sub-View",
+      "icon": "frontend",
+      "pos": [
+        410,
+        650
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "modal-item-picker",
+      "type": "frontend",
+      "label": "Product Matcher Modal",
+      "sublabel": "Sound-Alike Matcher",
+      "tag": "Tier 3: Modal",
+      "icon": "frontend",
+      "pos": [
+        600,
+        650
+      ],
+      "size": [
+        150,
+        50
+      ]
+    },
+    {
+      "id": "panel-void",
+      "type": "frontend",
+      "label": "Inline Void Panel",
+      "sublabel": "#void-confirm-panel",
+      "tag": "Tier 3: Sub-View",
+      "icon": "frontend",
+      "pos": [
+        410,
+        770
+      ],
+      "size": [
+        150,
+        50
+      ]
+    },
+    {
+      "id": "modal-order-detail",
+      "type": "frontend",
+      "label": "Order Detail Slip Modal",
+      "sublabel": "#order-detail-modal",
+      "tag": "Tier 3: Modal",
+      "icon": "frontend",
+      "pos": [
+        600,
+        770
+      ],
+      "size": [
+        150,
+        50
+      ]
+    },
+    {
+      "id": "bento-detail",
+      "type": "frontend",
+      "label": "Bento 4 Detail Hubs",
+      "sublabel": "4 Hubs Deep Dive",
+      "tag": "Tier 3: Sub-View",
+      "icon": "frontend",
+      "pos": [
+        410,
+        880
+      ],
+      "size": [
+        150,
+        50
+      ]
+    },
+    {
+      "id": "bento-settings",
+      "type": "frontend",
+      "label": "Bento DB Health Hub",
+      "sublabel": "Schema & Health Matrix",
+      "tag": "Tier 3: Sub-View",
+      "icon": "frontend",
+      "pos": [
+        410,
+        980
+      ],
+      "size": [
+        150,
+        50
+      ]
+    },
+    {
+      "id": "voice-engine",
+      "type": "frontend",
+      "label": "Web Audio Engine",
+      "sublabel": "Aoede TTS 25 Tracks",
+      "tag": "Tier 4: State",
+      "icon": "frontend",
+      "pos": [
+        780,
+        140
+      ],
+      "size": [
+        155,
+        52
+      ]
+    },
+    {
+      "id": "dexie-db",
+      "type": "database",
+      "label": "Dexie.js Offline Cache",
+      "sublabel": "products, offline queue",
+      "tag": "Tier 4: Cache",
+      "icon": "database",
+      "pos": [
+        780,
+        230
+      ],
+      "size": [
+        155,
+        54
+      ]
+    },
+    {
+      "id": "db-helper",
+      "type": "backend",
+      "label": "dbHelper.js Core",
+      "sublabel": "5-Tier Atomic RPC",
+      "tag": "Tier 4: Engine",
+      "icon": "backend",
+      "pos": [
+        780,
+        440
+      ],
+      "size": [
+        155,
+        68
+      ]
+    },
+    {
+      "id": "gas-drive",
+      "type": "cloud",
+      "label": "GAS Drive Pipeline",
+      "sublabel": "GAS Deduplication Engine",
+      "tag": "Tier 4: Storage",
+      "icon": "cloud",
+      "pos": [
+        780,
+        600
+      ],
+      "size": [
+        155,
+        52
+      ]
+    },
+    {
+      "id": "gemini-api",
+      "type": "cloud",
+      "label": "Gemini Multimodal AI",
+      "sublabel": "Flash Vision & Strategy",
+      "tag": "Tier 4: AI",
+      "icon": "cloud",
+      "pos": [
+        780,
+        720
+      ],
+      "size": [
+        155,
+        52
+      ]
+    },
+    {
+      "id": "supabase-primary",
+      "type": "database",
+      "label": "Supabase Primary Client",
+      "sublabel": "PG15+ Primary Client",
+      "tag": "Tier 4: Cloud",
+      "icon": "database",
+      "pos": [
+        1000,
+        410
+      ],
+      "size": [
+        150,
+        52
+      ]
+    },
+    {
+      "id": "supabase-anon",
+      "type": "security",
+      "label": "Public Anon Client",
+      "sublabel": "Public Anon RLS Fallback",
+      "tag": "Tier 4: RLS Fallback",
+      "icon": "security",
+      "pos": [
+        1000,
+        490
+      ],
+      "size": [
+        150,
+        52
+      ]
+    },
+    {
+      "id": "gdrive-storage",
+      "type": "cloud",
+      "label": "Google Drive CDN",
+      "sublabel": "lh3 Google CDN Cache",
+      "tag": "Tier 4: CDN",
+      "icon": "cloud",
+      "pos": [
+        1000,
+        600
+      ],
+      "size": [
+        150,
+        52
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Front-of-House (Cashiering & Fast Checkout)",
+      "wraps": [
+        "view-pos",
+        "view-payment",
+        "numpad-calc",
+        "drawer-qr",
+        "drawer-split",
+        "modal-barcode-404",
+        "modal-renew-code",
+        "modal-receipt",
+        "thermal-engine"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "Inventory & Receiving Operations",
+      "wraps": [
+        "view-products",
+        "view-categories",
+        "view-stockin",
+        "modal-prod-crud",
+        "staging-table",
+        "modal-camera",
+        "modal-item-picker"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "Management & Business Analytics",
+      "wraps": [
+        "view-orders",
+        "view-dashboard",
+        "view-settings",
+        "panel-void",
+        "bento-detail",
+        "bento-settings",
+        "modal-order-detail"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "Local Persistence & Engine Layer",
+      "wraps": [
+        "voice-engine",
+        "dexie-db",
+        "db-helper",
+        "gas-drive",
+        "gemini-api"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "Cloud Backend & Edge Services",
+      "wraps": [
+        "supabase-primary",
+        "supabase-anon",
+        "gdrive-storage"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "c-shell-pos",
+      "from": "shell",
+      "to": "view-pos",
+      "label": "Nav",
+      "variant": "emphasis"
+    },
+    {
+      "id": "c-pos-pay",
+      "from": "view-pos",
+      "to": "view-payment",
+      "label": "Checkout",
+      "variant": "emphasis"
+    },
+    {
+      "id": "c-shell-prod",
+      "from": "shell",
+      "to": "view-products",
+      "label": "Nav"
+    },
+    {
+      "id": "c-shell-cat",
+      "from": "shell",
+      "to": "view-categories",
+      "label": "Nav"
+    },
+    {
+      "id": "c-shell-stock",
+      "from": "shell",
+      "to": "view-stockin",
+      "label": "Nav"
+    },
+    {
+      "id": "c-shell-orders",
+      "from": "shell",
+      "to": "view-orders",
+      "label": "Nav"
+    },
+    {
+      "id": "c-shell-dash",
+      "from": "shell",
+      "to": "view-dashboard",
+      "label": "Nav"
+    },
+    {
+      "id": "c-shell-settings",
+      "from": "shell",
+      "to": "view-settings",
+      "label": "Nav"
+    },
+    {
+      "id": "c-pos-num",
+      "from": "view-pos",
+      "to": "numpad-calc",
+      "label": "Keypad"
+    },
+    {
+      "id": "c-pos-404",
+      "from": "view-pos",
+      "to": "modal-barcode-404",
+      "label": "Missed"
+    },
+    {
+      "id": "c-404-renew",
+      "from": "modal-barcode-404",
+      "to": "modal-renew-code",
+      "label": "Re-new [R]"
+    },
+    {
+      "id": "c-pay-qr",
+      "from": "view-payment",
+      "to": "drawer-qr",
+      "label": "QR Tab"
+    },
+    {
+      "id": "c-pay-split",
+      "from": "view-payment",
+      "to": "drawer-split",
+      "label": "Split Tab"
+    },
+    {
+      "id": "c-pay-receipt",
+      "from": "view-payment",
+      "to": "modal-receipt",
+      "label": "Slip"
+    },
+    {
+      "id": "c-pay-print",
+      "from": "modal-receipt",
+      "to": "thermal-engine",
+      "label": "ESC/POS"
+    },
+    {
+      "id": "c-pay-voice",
+      "from": "view-payment",
+      "to": "voice-engine",
+      "label": "Aoede TTS"
+    },
+    {
+      "id": "c-pos-cache",
+      "from": "view-pos",
+      "to": "dexie-db",
+      "label": "Offline"
+    },
+    {
+      "id": "c-pay-cache",
+      "from": "view-payment",
+      "to": "dexie-db",
+      "label": "Instant Queue"
+    },
+    {
+      "id": "c-prod-crud",
+      "from": "view-products",
+      "to": "modal-prod-crud",
+      "label": "Manage"
+    },
+    {
+      "id": "c-crud-cam",
+      "from": "modal-prod-crud",
+      "to": "modal-camera",
+      "label": "Camera"
+    },
+    {
+      "id": "c-crud-helper",
+      "from": "modal-prod-crud",
+      "to": "db-helper",
+      "label": "Upsert"
+    },
+    {
+      "id": "c-cat-helper",
+      "from": "view-categories",
+      "to": "db-helper",
+      "label": "Sync & Count"
+    },
+    {
+      "id": "c-stock-grid",
+      "from": "view-stockin",
+      "to": "staging-table",
+      "label": "Scan Bill"
+    },
+    {
+      "id": "c-stock-match",
+      "from": "staging-table",
+      "to": "modal-item-picker",
+      "label": "Match"
+    },
+    {
+      "id": "c-stock-cam",
+      "from": "staging-table",
+      "to": "modal-camera",
+      "label": "Quick Photo"
+    },
+    {
+      "id": "c-stock-ai",
+      "from": "view-stockin",
+      "to": "gemini-api",
+      "label": "Vision OCR"
+    },
+    {
+      "id": "c-stock-helper",
+      "from": "staging-table",
+      "to": "db-helper",
+      "label": "Commit"
+    },
+    {
+      "id": "c-orders-void",
+      "from": "view-orders",
+      "to": "panel-void",
+      "label": "Void"
+    },
+    {
+      "id": "c-void-helper",
+      "from": "panel-void",
+      "to": "db-helper",
+      "label": "Rollback"
+    },
+    {
+      "id": "c-orders-slip",
+      "from": "view-orders",
+      "to": "modal-order-detail",
+      "label": "Detail"
+    },
+    {
+      "id": "c-dash-hub",
+      "from": "view-dashboard",
+      "to": "bento-detail",
+      "label": "Drilldown"
+    },
+    {
+      "id": "c-dash-ai",
+      "from": "view-dashboard",
+      "to": "gemini-api",
+      "label": "Strategy AI"
+    },
+    {
+      "id": "c-settings-bento",
+      "from": "view-settings",
+      "to": "bento-settings",
+      "label": "Matrix Hub"
+    },
+    {
+      "id": "c-cam-upload",
+      "from": "modal-camera",
+      "to": "gas-drive",
+      "label": "Upload"
+    },
+    {
+      "id": "c-gas-cdn",
+      "from": "gas-drive",
+      "to": "gdrive-storage",
+      "label": "CDN"
+    },
+    {
+      "id": "c-cache-helper",
+      "from": "dexie-db",
+      "to": "db-helper",
+      "label": "Sync"
+    },
+    {
+      "id": "c-helper-pri",
+      "from": "db-helper",
+      "to": "supabase-primary",
+      "label": "Primary",
+      "variant": "emphasis"
+    },
+    {
+      "id": "c-helper-anon",
+      "from": "db-helper",
+      "to": "supabase-anon",
+      "label": "Anon Fallback",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "Tier 1 & 2: Shell, PWA & Dual-Device Ergonomics",
+      "items": [
+        "SPA Architecture with In-Memory View Cache (Map) & PWA Service Worker (sw.js)",
+        "Dual-Device Target Profiles: Profile A (Tablet 1024x640 Landscape, inputmode='none') & Profile B (Mobile 1260x2800 Portrait, single-scroll accordion)",
+        "Top Navigation: POS Cashier, Payment, Products, Categories, Stock-In, Sales Orders, Dashboard & Settings"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Tier 3: Sub-Views, Hardware Integration & AI Subsystems",
+      "items": [
+        "POS Hardware Barcode: Dual-Threshold Cadence (160ms/350ms wake-up), Thai Pattachote/Kasemani Auto-Correction, Bluetooth Sleep Wake Auto-Sync",
+        "Checkout & Printing: Quick Cash Calculator, Dynamic EMVCo PromptPay QR (CRC16), Split Payment, Web Bluetooth ESC/POS Direct Thermal Printer",
+        "Inventory & Vision: Product CRUD with Thai Voice Dictation, 900x900 Square Camera Viewfinder, Multimodal Gemini Flash OCR Bill Ingestion & Stock AI Hygiene Audit"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Tier 4: State, Offline-First Persistence & Cloud Resilience",
+      "items": [
+        "Zero-Latency Web Audio Engine with preloaded 25 Thai voice tracks (Aoede TTS) + Retro 8-bit Chiptune SFX",
+        "Local-First Instant Checkout (<50ms) queues to Dexie offline_orders with Resilient Background Sync",
+        "Google Drive CDN (lh3.googleusercontent.com) via GAS Web App with Service Worker Cache-First (pixel-pos-images-v1) and Image Deduplication",
+        "5-Tier Resilient dbHelper.js (Atomic PostgreSQL RPCs, Dual-Client primary+anon, PGRST204 column pruning, safeIdCompare) & Gemini Multi-Model Fallback"
+      ]
+    }
+  ]
+}
